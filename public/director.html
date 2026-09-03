@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Panel Director - Sistema de Incidencias</title>
+	<link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+	<div class="employee-container">
+		<!-- HEADER -->
+		<header class="employee-header">
+			<div class="header-left">
+				<h1 class="header-title">Director Área Sistemas</h1>
+				<a href="../index.html" class="logout-btn">Salir</a>
+			</div>
+			<div class="header-right">
+				<img src="../imagenes/logo.jpg" alt="Logo" />
+			</div>
+		</header>
+
+		<!-- CONTENIDO PRINCIPAL CON MENÚ -->
+		<div class="main-content">
+			<!-- MENÚ LATERAL -->
+			<aside class="sidebar-menu">
+				<button class="menu-item active" data-section="inicio">Inicio</button>
+				<button class="menu-item" data-section="incidencias">Incidencias</button>
+				<button class="menu-item" data-section="reportes">Reportes</button>
+			</aside>
+
+			<!-- ÁREA DE CONTENIDO -->
+			<main class="content-area">
+				<!-- SECCIÓN: INICIO (DASHBOARD) -->
+				<section id="inicio" class="content-section active">
+					<h2>Dashboard</h2>
+					<div class="dashboard-grid">
+						<!-- Tarjeta 1: Totales por Estados -->
+						<div class="dashboard-card">
+							<div class="card-header">
+								<h3>Incidencias por Estado</h3>
+							</div>
+							<div class="card-body">
+								<div class="stat-item">
+									<span class="stat-label">Pendientes:</span>
+									<span class="stat-value" id="stat-pendientes">0</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-label">En Proceso:</span>
+									<span class="stat-value" id="stat-proceso">0</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-label">Resueltas:</span>
+									<span class="stat-value" id="stat-resueltas">0</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-label">Canceladas:</span>
+									<span class="stat-value" id="stat-canceladas">0</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Tarjeta 2: Totales por Fecha -->
+						<div class="dashboard-card">
+							<div class="card-header">
+								<h3>Incidencias por Fecha</h3>
+							</div>
+							<div class="card-body">
+								<div class="stat-item">
+									<span class="stat-label">Hoy:</span>
+									<span class="stat-value" id="stat-hoy">0</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-label">Esta Semana:</span>
+									<span class="stat-value" id="stat-semana">0</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-label">Este Mes:</span>
+									<span class="stat-value" id="stat-mes">0</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-label">Total General:</span>
+									<span class="stat-value" id="stat-total">0</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Tarjeta 3: Incidencias Prioritarias -->
+						<div class="dashboard-card">
+							<div class="card-header">
+								<h3>Incidencias Prioritarias</h3>
+							</div>
+							<div class="card-body">
+								<div class="stat-item">
+									<span class="stat-label">Críticas:</span>
+									<span class="stat-value stat-critical" id="stat-criticas">0</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-label">Altas:</span>
+									<span class="stat-value stat-high" id="stat-altas">0</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-label">Medias:</span>
+									<span class="stat-value stat-medium" id="stat-medias">0</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-label">Bajas:</span>
+									<span class="stat-value stat-low" id="stat-bajas">0</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<!-- SECCIÓN: INCIDENCIAS -->
+				<section id="incidencias" class="content-section">
+					<h2>Gestión de Incidencias Pendientes</h2>
+					<div class="table-wrapper">
+						<table id="incidencias-table">
+							<thead>
+								<tr>
+									<th>Código</th>
+									<th>Artículo</th>
+									<th>Prioridad</th>
+									<th>Estado</th>
+									<th>Empleado</th>
+									<th>Acciones</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- Los datos se cargarán aquí dinámicamente -->
+							</tbody>
+						</table>
+					</div>
+				</section>
+
+				<!-- SECCIÓN: REPORTES -->
+				<section id="reportes" class="content-section">
+					<h2>Reportes de Incidencias</h2>
+
+					<!-- FILTROS -->
+					<div class="filters-container">
+						<div class="filter-group">
+							<label for="filter-codigo">Código:</label>
+							<input
+								type="text"
+								id="filter-codigo"
+								placeholder="Buscar por código..."
+							/>
+						</div>
+						<div class="filter-group">
+							<label for="filter-fecha">Fecha:</label>
+							<input type="date" id="filter-fecha" />
+						</div>
+						<div class="filter-group">
+							<label for="filter-articulo">Artículo:</label>
+							<input
+								type="text"
+								id="filter-articulo"
+								placeholder="Buscar por artículo..."
+							/>
+						</div>
+						<div class="filter-group">
+							<label for="filter-prioridad">Prioridad:</label>
+							<select id="filter-prioridad">
+								<option value="">Todas</option>
+								<option value="Crítica">Crítica</option>
+								<option value="Alta">Alta</option>
+								<option value="Media">Media</option>
+								<option value="Baja">Baja</option>
+							</select>
+						</div>
+						<div class="filter-group">
+							<label for="filter-estado">Estado:</label>
+							<select id="filter-estado">
+								<option value="">Todos</option>
+								<option value="Pendiente">Pendiente</option>
+								<option value="En Proceso">En Proceso</option>
+								<option value="Resuelto">Resuelto</option>
+								<option value="Cancelado">Cancelado</option>
+							</select>
+						</div>
+						<div class="filter-group">
+							<label for="filter-empleado">Empleado:</label>
+							<input
+								type="text"
+								id="filter-empleado"
+								placeholder="Buscar por empleado..."
+							/>
+						</div>
+						<button class="btn-filter" id="btn-limpiar-filtros">
+							Limpiar Filtros
+						</button>
+					</div>
+
+					<!-- TABLA DE REPORTES -->
+					<div class="table-wrapper">
+						<table id="reportes-table">
+							<thead>
+								<tr>
+									<th>Código</th>
+									<th>Fecha</th>
+									<th>Artículo</th>
+									<th>Prioridad</th>
+									<th>Estado</th>
+									<th>Empleado</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- Los datos se cargarán aquí dinámicamente -->
+							</tbody>
+						</table>
+					</div>
+				</section>
+			</main>
+		</div>
+	</div>
+
+	<!-- MODAL PARA ASIGNAR INCIDENCIA -->
+	<div id="modal-asignar" class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3>Asignar Incidencia</h3>
+				<button class="modal-close" onclick="cerrarModalAsignar()">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="empleado-select">Seleccionar Empleado:</label>
+					<select id="empleado-select">
+						<option value="">Seleccione un empleado...</option>
+						<!-- Los empleados se cargarán aquí dinámicamente -->
+					</select>
+				</div>
+			</div>
+			<div class="form-buttons">
+				<button class="btn-submit" onclick="confirmarAsignacion()">Asignar</button>
+				<button class="btn-cancel" onclick="cerrarModalAsignar()">Cancelar</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="../js/director.js"></script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Empleado Área Sistemas</title>
+	<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+	<div class="employee-container">
+		<!-- Header -->
+		<header class="employee-header">
+			<div class="header-left">
+				<h1 class="header-title">Empleado Área Sistemas</h1>
+				<a href="../index.html" class="logout-btn">Salir</a>
+			</div>
+			<div class="header-right">
+				<img src="../imagenes/logo.jpg" alt="Logo">
+			</div>
+		</header>
+
+		<!-- Main Content with Sidebar -->
+		<div class="main-content">
+			<!-- Sidebar Menu -->
+			<aside class="sidebar-menu">
+				<a href="#" class="menu-item active" data-section="incidents">Incidencias</a>
+				<a href="#" class="menu-item" data-section="articles">Artículos</a>
+				<a href="#" class="menu-item" data-section="categories">Categorías</a>
+			</aside>
+
+			<!-- Content Area -->
+			<div class="content-area">
+				<!-- Incidencias Section -->
+				<section id="incidents" class="content-section incidents-section active">
+					<h2>Incidencias Asignadas</h2>
+					<div class="table-wrapper">
+						<table>
+							<thead>
+								<tr>
+									<th>Código</th>
+									<th>Artículo</th>
+									<th>Prioridad</th>
+									<th>Estado</th>
+									<th>Acciones</th>
+								</tr>
+							</thead>
+							<tbody id="incidents-table-body">
+								<!-- Filas dinámicas -->
+							</tbody>
+						</table>
+					</div>
+				</section>
+
+				<!-- Artículos Section -->
+				<section id="articles" class="content-section articles-section">
+					<div class="section-header">
+						<h2>Artículos</h2>
+						<button class="btn-new" id="btn-new-article">+ Nuevo Artículo</button>
+					</div>
+					<div class="table-wrapper">
+						<table>
+							<thead>
+								<tr>
+									<th>Código</th>
+									<th>Tipo</th>
+									<th>Descripción</th>
+									<th>Área</th>
+									<th>Acciones</th>
+								</tr>
+							</thead>
+							<tbody id="articles-table-body">
+								<!-- Filas dinámicas -->
+							</tbody>
+						</table>
+					</div>
+				</section>
+
+				<!-- Categorías Section -->
+				<section id="categories" class="content-section categories-section">
+					<div class="section-header">
+						<h2>Categorías</h2>
+						<button class="btn-new" id="btn-new-category">+ Nueva Categoría</button>
+					</div>
+					<div class="table-wrapper">
+						<table>
+							<thead>
+								<tr>
+									<th>Código</th>
+									<th>Descripción</th>
+									<th>Estado</th>
+									<th>Acciones</th>
+								</tr>
+							</thead>
+							<tbody id="categories-table-body">
+								<!-- Filas dinámicas -->
+							</tbody>
+						</table>
+					</div>
+				</section>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal para Nuevo Artículo -->
+	<div id="modal-new-article" class="modal">
+		<div class="modal-content">
+			<span class="close-modal" data-modal="modal-new-article">&times;</span>
+			<h2>Nuevo Artículo</h2>
+			<form id="form-new-article" class="form-modal">
+				<div class="form-group">
+					<label for="article-type">Tipo:</label>
+					<input type="text" id="article-type" required>
+				</div>
+				<div class="form-group">
+					<label for="article-description">Descripción:</label>
+					<textarea id="article-description" required></textarea>
+				</div>
+				<div class="form-group">
+					<label for="article-area">Área:</label>
+					<input type="text" id="article-area" required>
+				</div>
+				<div class="form-buttons">
+					<button type="submit" class="btn-submit">Guardar</button>
+					<button type="button" class="btn-cancel" data-modal="modal-new-article">Cancelar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Modal para Nueva Categoría -->
+	<div id="modal-new-category" class="modal">
+		<div class="modal-content">
+			<span class="close-modal" data-modal="modal-new-category">&times;</span>
+			<h2>Nueva Categoría</h2>
+			<form id="form-new-category" class="form-modal">
+				<div class="form-group">
+					<label for="category-description">Descripción:</label>
+					<textarea id="category-description" required></textarea>
+				</div>
+				<div class="form-group">
+					<label for="category-status">Estado:</label>
+					<select id="category-status" required>
+						<option value="">-- Seleccionar --</option>
+						<option value="Activo">Activo</option>
+						<option value="Inactivo">Inactivo</option>
+					</select>
+				</div>
+				<div class="form-buttons">
+					<button type="submit" class="btn-submit">Guardar</button>
+					<button type="button" class="btn-cancel" data-modal="modal-new-category">Cancelar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="../js/employee.js"></script>
+</body>
+</html>

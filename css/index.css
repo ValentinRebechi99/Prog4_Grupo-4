@@ -1,0 +1,745 @@
+/* ====================================
+   VARIABLES Y CONFIGURACIÓN GLOBAL
+   ==================================== */
+
+:root {
+	--primary: #102a43;
+	--primary-light: #2a4a6f;
+	--primary-lighter: #3d5a8a;
+	--accent: #006bb3;
+	--accent-light: #0084d1;
+	--success: #00a854;
+	--error: #d32f2f;
+	--warning: #ffa726;
+	--gray-900: #0f1419;
+	--gray-800: #1a2332;
+	--gray-700: #2d3748;
+	--gray-600: #4a5568;
+	--gray-500: #718096;
+	--gray-300: #cbd5e0;
+	--gray-200: #e2e8f0;
+	--gray-100: #f7fafc;
+	--white: #ffffff;
+	--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+	--shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15), 0 10px 20px rgba(0, 0, 0, 0.08);
+	--shadow-lg: 0 15px 35px rgba(16, 42, 67, 0.15);
+	--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ====================================
+   RESET Y ESTILOS BASE
+   ==================================== */
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html {
+	font-size: 16px;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+body {
+	font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	font-size: 1rem;
+	line-height: 1.6;
+	color: var(--gray-700);
+	background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+	min-height: 100vh;
+}
+
+/* ====================================
+   CONTENEDOR PRINCIPAL
+   ==================================== */
+
+.login-shell {
+	display: flex;
+	height: 100vh;
+	overflow: hidden;
+}
+
+/* ====================================
+   PANEL DE BIENVENIDA (IZQUIERDA)
+   ==================================== */
+
+.welcome-panel {
+	flex: 1;
+	background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--accent) 100%);
+	color: var(--white);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding: 3rem 2rem;
+	position: relative;
+	overflow: hidden;
+}
+
+/* Decoraciones de fondo */
+.welcome-panel::before {
+	content: '';
+	position: absolute;
+	top: -50%;
+	right: -10%;
+	width: 400px;
+	height: 400px;
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 50%;
+	animation: float 6s ease-in-out infinite;
+}
+
+.welcome-panel::after {
+	content: '';
+	position: absolute;
+	bottom: -30%;
+	left: -5%;
+	width: 300px;
+	height: 300px;
+	background: rgba(255, 255, 255, 0.03);
+	border-radius: 50%;
+	animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+	0%, 100% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(20px);
+	}
+}
+
+.eyebrow {
+	font-size: 0.875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	opacity: 0.85;
+	margin-bottom: 2rem;
+	position: relative;
+	z-index: 2;
+}
+
+.welcome-panel .eyebrow {
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.welcome-panel .imagen {
+	position: relative;
+	z-index: 2;
+	margin: 2rem 0;
+}
+
+.welcome-panel img {
+	width: 200px;
+	height: 200px;
+	object-fit: contain;
+	filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
+	animation: slideInDown 0.6s ease-out;
+}
+
+@keyframes slideInDown {
+	from {
+		opacity: 0;
+		transform: translateY(-30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.status-line {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	font-size: 0.95rem;
+	color: rgba(255, 255, 255, 0.8);
+	margin-top: 2rem;
+	position: relative;
+	z-index: 2;
+}
+
+.status-dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	background-color: var(--success);
+	border-radius: 50%;
+	animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+/* Panel decoration */
+.panel-decoration {
+	position: absolute;
+	bottom: 2rem;
+	right: 2rem;
+	display: flex;
+	gap: 0.5rem;
+	z-index: 1;
+}
+
+.panel-decoration span {
+	display: inline-block;
+	width: 3px;
+	height: 40px;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 2px;
+}
+
+/* ====================================
+   PANEL DE FORMULARIO (DERECHA)
+   ==================================== */
+
+.form-panel {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding: 2rem;
+	background: var(--white);
+	overflow-y: auto;
+	position: relative;
+}
+
+.form-content {
+	width: 100%;
+	max-width: 420px;
+	animation: slideInRight 0.6s ease-out;
+}
+
+@keyframes slideInRight {
+	from {
+		opacity: 0;
+		transform: translateX(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.mobile-brand {
+	display: none;
+	justify-content: center;
+	margin-bottom: 2rem;
+}
+
+.mobile-brand img {
+	width: 80px;
+	height: 80px;
+}
+
+.form-content > .eyebrow {
+	color: var(--accent);
+	display: block;
+	margin-bottom: 0.5rem;
+}
+
+.form-content h2 {
+	font-family: 'Space Grotesk', sans-serif;
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: var(--primary);
+	margin-bottom: 0.5rem;
+	line-height: 1.2;
+}
+
+.form-intro {
+	color: var(--gray-600);
+	margin-bottom: 2rem;
+	font-size: 0.95rem;
+}
+
+/* ====================================
+   FORMULARIO
+   ==================================== */
+
+#login-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+}
+
+.field-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+
+.label-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+label {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: var(--gray-800);
+	display: block;
+}
+
+label a {
+	font-size: 0.85rem;
+	color: var(--accent);
+	text-decoration: none;
+	transition: var(--transition);
+}
+
+label a:hover {
+	color: var(--primary);
+	text-decoration: underline;
+}
+
+/* Input Wrapper */
+.input-wrap {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.input-icon {
+	position: absolute;
+	left: 1rem;
+	color: var(--gray-500);
+	font-weight: 600;
+	font-size: 1rem;
+	pointer-events: none;
+	z-index: 2;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+	width: 100%;
+	padding: 0.875rem 1rem 0.875rem 2.75rem;
+	font-size: 0.95rem;
+	font-family: inherit;
+	border: 2px solid var(--gray-300);
+	border-radius: 8px;
+	background: var(--gray-100);
+	color: var(--gray-800);
+	transition: var(--transition);
+	outline: none;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
+	background: var(--white);
+	border-color: var(--accent);
+	box-shadow: 0 0 0 3px rgba(0, 132, 209, 0.1);
+}
+
+input[type="text"]::placeholder,
+input[type="password"]::placeholder,
+input[type="email"]::placeholder {
+	color: var(--gray-500);
+}
+
+/* Password toggle button */
+.password-toggle {
+	position: absolute;
+	right: 1rem;
+	background: none;
+	border: none;
+	color: var(--accent);
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+	padding: 0.25rem 0;
+	transition: var(--transition);
+	z-index: 3;
+}
+
+.password-toggle:hover {
+	color: var(--primary);
+}
+
+/* Remember checkbox */
+.remember-option {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	font-size: 0.9rem;
+	color: var(--gray-700);
+	cursor: pointer;
+	user-select: none;
+	padding: 0.5rem 0;
+}
+
+.remember-option input[type="checkbox"] {
+	appearance: none;
+	width: 18px;
+	height: 18px;
+	border: 2px solid var(--gray-300);
+	border-radius: 4px;
+	background: var(--white);
+	cursor: pointer;
+	transition: var(--transition);
+	position: relative;
+}
+
+.remember-option input[type="checkbox"]:checked {
+	background: var(--accent);
+	border-color: var(--accent);
+}
+
+.remember-option input[type="checkbox"]:checked::after {
+	content: '✓';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: var(--white);
+	font-size: 0.75rem;
+	font-weight: bold;
+}
+
+/* Form message (error/success) */
+.form-message {
+	padding: 0.875rem 1rem;
+	border-radius: 6px;
+	font-size: 0.9rem;
+	text-align: center;
+	display: none;
+	animation: slideInDown 0.3s ease-out;
+}
+
+.form-message.error {
+	display: block;
+	background: rgba(211, 47, 47, 0.1);
+	color: var(--error);
+	border: 1px solid rgba(211, 47, 47, 0.3);
+}
+
+.form-message.success {
+	display: block;
+	background: rgba(0, 168, 84, 0.1);
+	color: var(--success);
+	border: 1px solid rgba(0, 168, 84, 0.3);
+}
+
+/* ====================================
+   BOTONES
+   ==================================== */
+
+.submit-button {
+	width: 100%;
+	padding: 1rem;
+	font-size: 0.95rem;
+	font-weight: 700;
+	font-family: 'Space Grotesk', sans-serif;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--white);
+	background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: var(--transition);
+	box-shadow: var(--shadow-md);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+}
+
+.submit-button:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 16px rgba(0, 132, 209, 0.3);
+}
+
+.submit-button:active {
+	transform: translateY(0);
+	box-shadow: 0 4px 8px rgba(0, 132, 209, 0.2);
+}
+
+.submit-button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+
+/* ====================================
+   AYUDA Y CONTACTO
+   ==================================== */
+
+.help-text {
+	font-size: 0.9rem;
+	color: var(--gray-600);
+	text-align: center;
+	margin-top: 1.5rem;
+}
+
+.help-text a {
+	color: var(--accent);
+	text-decoration: none;
+	font-weight: 600;
+	transition: var(--transition);
+}
+
+.help-text a:hover {
+	color: var(--primary);
+	text-decoration: underline;
+}
+
+/* ====================================
+   FOOTER
+   ==================================== */
+
+.form-panel footer {
+	position: absolute;
+	bottom: 1.5rem;
+	font-size: 0.8rem;
+	color: var(--gray-500);
+	text-align: center;
+}
+
+.form-panel footer span {
+	margin: 0 0.5rem;
+	opacity: 0.5;
+}
+
+/* ====================================
+   MEDIA QUERIES - RESPONSIVE
+   ==================================== */
+
+@media (max-width: 1024px) {
+	.login-shell {
+		height: auto;
+		flex-direction: column;
+		min-height: 100vh;
+	}
+
+	.welcome-panel {
+		padding: 2rem;
+		min-height: 40vh;
+	}
+
+	.welcome-panel img {
+		width: 140px;
+		height: 140px;
+	}
+
+	.form-panel {
+		padding: 3rem 2rem;
+		min-height: 60vh;
+		justify-content: flex-start;
+		padding-top: 3rem;
+	}
+
+	.form-panel footer {
+		position: static;
+		margin-top: 2rem;
+	}
+}
+
+@media (max-width: 768px) {
+	.welcome-panel {
+		min-height: 25vh;
+		padding: 1.5rem;
+	}
+
+	.welcome-panel::before {
+		width: 250px;
+		height: 250px;
+	}
+
+	.welcome-panel::after {
+		width: 200px;
+		height: 200px;
+	}
+
+	.welcome-panel img {
+		width: 120px;
+		height: 120px;
+	}
+
+	.eyebrow {
+		font-size: 0.75rem;
+		letter-spacing: 0.5px;
+	}
+
+	.welcome-panel .eyebrow {
+		margin-bottom: 1rem;
+	}
+
+	.welcome-panel .imagen {
+		margin: 1rem 0;
+	}
+
+	.status-line {
+		font-size: 0.85rem;
+		margin-top: 1rem;
+	}
+
+	.form-panel {
+		min-height: 75vh;
+		padding: 2rem 1.5rem;
+	}
+
+	.form-content {
+		max-width: 100%;
+	}
+
+	.mobile-brand {
+		display: flex;
+	}
+
+	.form-content h2 {
+		font-size: 1.5rem;
+	}
+
+	.panel-decoration {
+		display: none;
+	}
+}
+
+@media (max-width: 480px) {
+	:root {
+		font-size: 14px;
+	}
+
+	.login-shell {
+		min-height: auto;
+	}
+
+	.welcome-panel {
+		min-height: auto;
+		padding: 1rem;
+	}
+
+	.welcome-panel img {
+		width: 90px;
+		height: 90px;
+	}
+
+	.eyebrow {
+		font-size: 0.65rem;
+	}
+
+	.welcome-panel .imagen {
+		margin: 0.75rem 0;
+	}
+
+	.status-line {
+		font-size: 0.75rem;
+		margin-top: 0.75rem;
+	}
+
+	.form-panel {
+		padding: 1.5rem 1rem;
+		min-height: auto;
+	}
+
+	.form-content h2 {
+		font-size: 1.25rem;
+	}
+
+	.form-intro {
+		font-size: 0.85rem;
+		margin-bottom: 1.5rem;
+	}
+
+	#login-form {
+		gap: 1.25rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.submit-button {
+		padding: 0.875rem;
+		font-size: 0.9rem;
+	}
+
+	.help-text {
+		font-size: 0.8rem;
+		margin-top: 1rem;
+	}
+}
+
+/* ====================================
+   ANIMACIONES Y EFECTOS ADICIONALES
+   ==================================== */
+
+/* Animación de entrada para inputs */
+input {
+	animation: fadeIn 0.5s ease-out forwards;
+	opacity: 0;
+}
+
+input:nth-of-type(1) {
+	animation-delay: 0.2s;
+}
+
+input:nth-of-type(2) {
+	animation-delay: 0.3s;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Scroll personalizado */
+.form-panel::-webkit-scrollbar {
+	width: 6px;
+}
+
+.form-panel::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.form-panel::-webkit-scrollbar-thumb {
+	background: var(--gray-300);
+	border-radius: 3px;
+}
+
+.form-panel::-webkit-scrollbar-thumb:hover {
+	background: var(--gray-400);
+}
+
+/* ====================================
+   ACCESIBILIDAD
+   ==================================== */
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* Focus visible para navegación con teclado */
+*:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+button:focus-visible {
+	outline-offset: -2px;
+}

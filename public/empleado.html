@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Empleado Municipal</title>
+	<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+	<div class="employee-container">
+		<!-- HEADER -->
+		<header class="employee-header">
+			<div class="header-left">
+				<h1 class="header-title">Empleado Municipal</h1>
+				<a href="../index.html" class="logout-btn">Salir</a>
+			</div>
+			<div class="header-right">
+				<img src="../imagenes/logo.jpg" alt="Logo Municipal">
+			</div>
+		</header>
+
+		<!-- CONTENIDO PRINCIPAL -->
+		<div class="main-content">
+			<!-- MENÚ LATERAL -->
+			<aside class="sidebar-menu">
+				<button class="menu-item active" data-section="articles">
+					Listar artículos
+				</button>
+				<button class="menu-item" data-section="create-incident">
+					Crear una Incidencia
+				</button>
+				<button class="menu-item" data-section="incidents">
+					Listado de incidencias
+				</button>
+			</aside>
+
+			<!-- ÁREA DE CONTENIDO -->
+			<div class="content-area">
+				<!-- SECCIÓN: LISTAR ARTÍCULOS -->
+				<section class="content-section articles-section active" id="articles">
+					<div class="section-header">
+						<h2>Artículos</h2>
+						<button class="btn-new" id="btn-new-article">+ Nuevo</button>
+					</div>
+
+					<div class="table-wrapper">
+						<table id="articles-table">
+							<thead>
+								<tr>
+									<th>Código</th>
+									<th>Tipo</th>
+									<th>Descripción</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- Los artículos se llenarán dinámicamente -->
+							</tbody>
+						</table>
+						<div class="empty-state" id="articles-empty">
+							<p>No hay artículos registrados. Crea uno nuevo para comenzar.</p>
+						</div>
+					</div>
+				</section>
+
+				<!-- SECCIÓN: CREAR INCIDENCIA -->
+				<section class="content-section create-incident-section" id="create-incident">
+					<h2>Crear una Incidencia</h2>
+
+					<div class="form-container">
+						<div id="create-incident-message" class="message"></div>
+
+						<form id="create-incident-form">
+							<div class="form-group">
+								<label for="incident-article">Artículo</label>
+								<select id="incident-article" required>
+									<option value="">Selecciona un artículo</option>
+									<!-- Las opciones se llenarán dinámicamente -->
+								</select>
+							</div>
+
+							<div class="form-group">
+								<label for="incident-description">Descripción</label>
+								<textarea
+									id="incident-description"
+									placeholder="Describe la incidencia..."
+									required
+								></textarea>
+							</div>
+
+							<div class="form-group">
+								<label for="incident-priority">Prioridad</label>
+								<select id="incident-priority" required>
+									<option value="">Selecciona una prioridad</option>
+									<option value="Alta">Alta</option>
+									<option value="Media">Media</option>
+									<option value="Baja">Baja</option>
+								</select>
+							</div>
+
+							<div class="form-buttons">
+								<button type="button" class="btn-cancel" id="btn-cancel-incident">
+									Cancelar
+								</button>
+								<button type="submit" class="btn-submit">Crear Incidencia</button>
+							</div>
+						</form>
+					</div>
+				</section>
+
+				<!-- SECCIÓN: LISTADO DE INCIDENCIAS -->
+				<section class="content-section incidents-section" id="incidents">
+					<h2>Listado de Incidencias</h2>
+
+					<div class="table-wrapper">
+						<table id="incidents-table">
+							<thead>
+								<tr>
+									<th>Código</th>
+									<th>Artículo</th>
+									<th>Estado</th>
+									<th>Prioridad</th>
+									<th>Acción</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- Las incidencias se llenarán dinámicamente -->
+							</tbody>
+						</table>
+						<div class="empty-state" id="incidents-empty">
+							<p>No hay incidencias registradas.</p>
+						</div>
+					</div>
+				</section>
+			</div>
+		</div>
+	</div>
+
+	<!-- MODAL: NUEVO ARTÍCULO -->
+	<div class="modal" id="modal-new-article">
+		<div class="modal-content">
+			<div class="modal-header">Nuevo Artículo</div>
+
+			<div id="modal-message" class="message"></div>
+
+			<form id="new-article-form">
+				<div class="form-group">
+					<label for="article-type">Tipo</label>
+					<input
+						type="text"
+						id="article-type"
+						placeholder="Ej: Computadora, Escritorio, etc."
+						required
+					>
+				</div>
+
+				<div class="form-group">
+					<label for="article-description">Descripción</label>
+					<textarea
+						id="article-description"
+						placeholder="Describe el artículo..."
+						required
+					></textarea>
+				</div>
+
+				<div class="form-buttons">
+					<button type="button" class="btn-cancel" id="btn-cancel-article">
+						Cancelar
+					</button>
+					<button type="submit" class="btn-submit">Guardar Artículo</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="../js/login.js"></script>
+	<script src="../js/employee.js"></script>
+</body>
+</html>
