@@ -140,6 +140,27 @@ class EmployeeSystemsManager {
 		const articles = this.getArticles();
 		return articles.find(art => art.code === code);
 	}
+
+	async nuevoArticulo(articuloData) {
+		try {
+			const respuesta = await fetch('http://localhost:3000/api/articulos', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(articuloData)
+			});
+
+			if (!respuesta.ok) {
+				throw new Error(`Error en la petición: ${respuesta.status}`);
+			}
+
+			return await respuesta.json();
+		} catch (error) {
+			console.error('Error al guardar artículo:', error);
+			throw error;
+		}
+	}
 }
 
 // ====================================
@@ -156,7 +177,7 @@ class EmployeeSystemsUI {
 		this.setupMenuListeners();
 		this.setupArticleModals();
 		this.setupCategoryModals();
-		this.ArticlesTable();
+		this.renderArticlesTable();
 		this.renderCategoriesTable();
 		this.renderIncidentsTable();
 	}
@@ -204,51 +225,87 @@ class EmployeeSystemsUI {
 
 	// ========== MODALES - ARTÍCULOS ==========
 	setupArticleModals() {
-		const btnNewArticle = document.getElementById('btn-new-article');
-		const formNewArticle = document.getElementById('form-new-article');
-		const modal = document.getElementById('modal-new-article');
+        const btnNewArticle = document.getElementById('btn-new-article');
+        const modal = document.getElementById('modal-new-article');
+        const formNewArticle = document.getElementById('form-new-article');
 
-		if (btnNewArticle && modal) {
-			btnNewArticle.addEventListener('click', () => {
-				this.openModal('modal-new-article');
-			});
-		}
+        // Abrir modal con botón + NUEVO
+        if (btnNewArticle && modal) {
+            btnNewArticle.addEventListener('click', () => {
+                this.openModal('modal-new-article');
+            });
+        }
 
-		if (modal) {
-			this.setupCloseModalButtons(modal);
+        if (modal) {
+            this.setupCloseModalButtons(modal);
 
-			modal.addEventListener('click', (e) => {
-				if (e.target === modal) {
-					this.closeModal('modal-new-article');
-				}
-			});
-		}
+            // Cerrar al hacer clic en el fondo gris
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeModal('modal-new-article');
+                }
+            });
 
-		if (formNewArticle) {
-			formNewArticle.addEventListener('submit', (e) => {
-				e.preventDefault();
-				this.handleNewArticle();
-			});
-		}
-	}
+            // Capturar clic directo en el botón GUARDAR ARTÍCULO
+            const btnSubmit = modal.querySelector('button[type="submit"]') || 
+                              modal.querySelector('.btn-primary') ||
+                              modal.querySelector('.btn-confirm');
+            if (btnSubmit) {
+                btnSubmit.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.handleNewArticle();
+                });
+            }
+        }
 
-	handleNewArticle() {
-		const type = document.getElementById('article-type').value.trim();
-		const description = document.getElementById('article-description').value.trim();
-		const area = document.getElementById('article-area').value.trim();
+        // Respaldo por evento submit del form
+        if (formNewArticle) {
+            formNewArticle.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleNewArticle();
+            });
+        }
+    }
 
-		if (!type || !description || !area) {
-			alert('Por favor completa todos los campos');
-			return;
-		}
+	async handleNewArticle() {
+        const modal = document.getElementById('modal-new-article');
+        
+        // Busca los inputs por ID o por etiqueta dentro del modal
+        const inputTipo = document.getElementById('article-type') || 
+                          modal?.querySelector('input[type="text"]');
+        const inputDescripcion = document.getElementById('article-description') || 
+                                 modal?.querySelector('textarea');
 
-		this.manager.addArticle(type, description, area);
-		this.resetForm('form-new-article');
-		this.closeModal('modal-new-article');
-		this.renderArticlesTable();
-	}
+        const tipo = inputTipo ? inputTipo.value.trim() : '';
+        const descripcion = inputDescripcion ? inputDescripcion.value.trim() : '';
 
-	async ArticlesTable() {
+        if (!descripcion && !tipo) {
+            alert('Por favor, ingresa los datos del artículo.');
+            return;
+        }
+
+        const textoFinal = tipo && descripcion ? `${tipo} - ${descripcion}` : (descripcion || tipo);
+
+        try {
+            await this.manager.nuevoArticulo({
+                descripcion: textoFinal,
+                id_area: 1,
+                id_categoria: 1
+            });
+
+            // Limpiar inputs manualmente
+            if (inputTipo) inputTipo.value = '';
+            if (inputDescripcion) inputDescripcion.value = '';
+
+            this.closeModal('modal-new-article');
+            await this.renderArticlesTable();
+        } catch (error) {
+            console.error(error);
+            alert('Error al guardar. Revisa la consola y que server.js esté corriendo.');
+        }
+    }
+
+	async renderArticlesTable() {
 		const articles = await this.manager.getArticles();
 		const tbody = document.getElementById('articles-table-body');
 		const emptyState = document.getElementById('articles-empty');
