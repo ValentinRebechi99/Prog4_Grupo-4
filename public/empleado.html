@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Empleado Municipal</title>
 	<link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
 	<div class="employee-container">
 		<!-- HEADER -->
@@ -48,15 +50,15 @@
 							<thead>
 								<tr>
 									<th>Código</th>
-									<th>Tipo</th>
+									<th>Área / Categoría</th>
 									<th>Descripción</th>
 								</tr>
 							</thead>
-							<tbody>
-								<!-- Los artículos se llenarán dinámicamente -->
+							<tbody id="articles-table-body">
+								<!-- Las filas se insertarán dinámicamente desde JavaScript -->
 							</tbody>
 						</table>
-						<div class="empty-state" id="articles-empty">
+						<div class="empty-state" id="articles-empty" style="display: none;">
 							<p>No hay artículos registrados. Crea uno nuevo para comenzar.</p>
 						</div>
 					</div>
@@ -80,11 +82,8 @@
 
 							<div class="form-group">
 								<label for="incident-description">Descripción</label>
-								<textarea
-									id="incident-description"
-									placeholder="Describe la incidencia..."
-									required
-								></textarea>
+								<textarea id="incident-description" placeholder="Describe la incidencia..."
+									required></textarea>
 							</div>
 
 							<div class="form-group">
@@ -145,21 +144,12 @@
 			<form id="new-article-form">
 				<div class="form-group">
 					<label for="article-type">Tipo</label>
-					<input
-						type="text"
-						id="article-type"
-						placeholder="Ej: Computadora, Escritorio, etc."
-						required
-					>
+					<input type="text" id="article-type" placeholder="Ej: Computadora, Escritorio, etc." required>
 				</div>
 
 				<div class="form-group">
 					<label for="article-description">Descripción</label>
-					<textarea
-						id="article-description"
-						placeholder="Describe el artículo..."
-						required
-					></textarea>
+					<textarea id="article-description" placeholder="Describe el artículo..." required></textarea>
 				</div>
 
 				<div class="form-buttons">
@@ -175,4 +165,5 @@
 	<script src="../js/login.js"></script>
 	<script src="../js/employee.js"></script>
 </body>
+
 </html>

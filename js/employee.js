@@ -47,9 +47,15 @@ class EmployeeSystemsManager {
 	}
 
 	// ========== ARTÍCULOS ==========
-	getArticles() {
-		const data = localStorage.getItem(this.articlesKey);
-		return data ? JSON.parse(data) : [];
+	async getArticles() {
+		try {
+			const respuesta = await fetch('http://localhost:3000/api/articulos');
+			const articulos = await respuesta.json();
+			return articulos;
+		} catch (error) {
+			console.error('Error al pedir articulo', error);
+			return [];
+		}
 	}
 
 	addArticle(type, description, area) {
@@ -150,7 +156,7 @@ class EmployeeSystemsUI {
 		this.setupMenuListeners();
 		this.setupArticleModals();
 		this.setupCategoryModals();
-		this.renderArticlesTable();
+		this.ArticlesTable();
 		this.renderCategoriesTable();
 		this.renderIncidentsTable();
 	}
@@ -202,26 +208,28 @@ class EmployeeSystemsUI {
 		const formNewArticle = document.getElementById('form-new-article');
 		const modal = document.getElementById('modal-new-article');
 
-		// Abrir modal
-		btnNewArticle.addEventListener('click', () => {
-			this.openModal('modal-new-article');
-		});
+		if (btnNewArticle && modal) {
+			btnNewArticle.addEventListener('click', () => {
+				this.openModal('modal-new-article');
+			});
+		}
 
-		// Cerrar modal - botones
-		this.setupCloseModalButtons(modal);
+		if (modal) {
+			this.setupCloseModalButtons(modal);
 
-		// Enviar formulario
-		formNewArticle.addEventListener('submit', (e) => {
-			e.preventDefault();
-			this.handleNewArticle();
-		});
+			modal.addEventListener('click', (e) => {
+				if (e.target === modal) {
+					this.closeModal('modal-new-article');
+				}
+			});
+		}
 
-		// Cerrar modal al hacer click fuera
-		modal.addEventListener('click', (e) => {
-			if (e.target === modal) {
-				this.closeModal('modal-new-article');
-			}
-		});
+		if (formNewArticle) {
+			formNewArticle.addEventListener('submit', (e) => {
+				e.preventDefault();
+				this.handleNewArticle();
+			});
+		}
 	}
 
 	handleNewArticle() {
@@ -240,37 +248,29 @@ class EmployeeSystemsUI {
 		this.renderArticlesTable();
 	}
 
-	renderArticlesTable() {
-		const articles = this.manager.getArticles();
+	async ArticlesTable() {
+		const articles = await this.manager.getArticles();
 		const tbody = document.getElementById('articles-table-body');
+		const emptyState = document.getElementById('articles-empty');
 
+		if (!tbody) return;
 		tbody.innerHTML = '';
 
-		if (articles.length === 0) {
-			tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #999;">No hay artículos registrados</td></tr>';
+		if (!articles || articles.length === 0) {
+			if (emptyState) emptyState.style.display = 'block';
 			return;
 		}
+
+		// Ocultar mensaje de vacío si hay registros
+		if (emptyState) emptyState.style.display = 'none';
 
 		articles.forEach(article => {
 			const row = document.createElement('tr');
 			row.innerHTML = `
-				<td>${article.code}</td>
-				<td>${article.type}</td>
-				<td>${article.description}</td>
-				<td>${article.area}</td>
-				<td>
-					<button class="btn-delete" data-code="${article.code}" style="padding: 0.5rem 1rem; background: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer;">Eliminar</button>
-				</td>
-			`;
-
-			const btnDelete = row.querySelector('.btn-delete');
-			btnDelete.addEventListener('click', () => {
-				if (confirm('¿Estás seguro de que deseas eliminar este artículo?')) {
-					this.manager.deleteArticle(article.code);
-					this.renderArticlesTable();
-				}
-			});
-
+            <td>${article.id_articulo}</td>
+            <td>Área: ${article.id_area} | Cat: ${article.id_categoria}</td>
+            <td>${article.descripcion}</td>
+        `;
 			tbody.appendChild(row);
 		});
 	}
@@ -281,26 +281,28 @@ class EmployeeSystemsUI {
 		const formNewCategory = document.getElementById('form-new-category');
 		const modal = document.getElementById('modal-new-category');
 
-		// Abrir modal
-		btnNewCategory.addEventListener('click', () => {
-			this.openModal('modal-new-category');
-		});
+		if (btnNewCategory && modal) {
+			btnNewCategory.addEventListener('click', () => {
+				this.openModal('modal-new-category');
+			});
+		}
 
-		// Cerrar modal - botones
-		this.setupCloseModalButtons(modal);
+		if (modal) {
+			this.setupCloseModalButtons(modal);
 
-		// Enviar formulario
-		formNewCategory.addEventListener('submit', (e) => {
-			e.preventDefault();
-			this.handleNewCategory();
-		});
+			modal.addEventListener('click', (e) => {
+				if (e.target === modal) {
+					this.closeModal('modal-new-category');
+				}
+			});
+		}
 
-		// Cerrar modal al hacer click fuera
-		modal.addEventListener('click', (e) => {
-			if (e.target === modal) {
-				this.closeModal('modal-new-category');
-			}
-		});
+		if (formNewCategory) {
+			formNewCategory.addEventListener('submit', (e) => {
+				e.preventDefault();
+				this.handleNewCategory();
+			});
+		}
 	}
 
 	handleNewCategory() {
@@ -321,7 +323,7 @@ class EmployeeSystemsUI {
 	renderCategoriesTable() {
 		const categories = this.manager.getCategories();
 		const tbody = document.getElementById('categories-table-body');
-
+		if (!tbody) return;
 		tbody.innerHTML = '';
 
 		if (categories.length === 0) {
@@ -356,7 +358,7 @@ class EmployeeSystemsUI {
 	renderIncidentsTable() {
 		const incidents = this.manager.getIncidents();
 		const tbody = document.getElementById('incidents-table-body');
-
+		if (!tbody) return;
 		tbody.innerHTML = '';
 
 		if (incidents.length === 0) {
@@ -375,11 +377,11 @@ class EmployeeSystemsUI {
 				<td>${incident.priority}</td>
 				<td>${incident.status}</td>
 				<td>
-					${incident.status === 'Abierta' ? 
-						`<button class="btn-finalize" data-code="${incident.code}" style="padding: 0.5rem 1rem; background: #00a854; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">Finalizar</button>` 
-						: 
-						'<span style="color: #999;">Finalizada</span>'
-					}
+					${incident.status === 'Abierta' ?
+					`<button class="btn-finalize" data-code="${incident.code}" style="padding: 0.5rem 1rem; background: #00a854; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">Finalizar</button>`
+					:
+					'<span style="color: #999;">Finalizada</span>'
+				}
 				</td>
 			`;
 
