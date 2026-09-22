@@ -152,7 +152,26 @@
 			</form>
 		</div>
 	</div>
+	<!-- Modal para Editar Categoría -->
+    <div id="modal-edit-category" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="modal-edit-category">&times;</span>
+            <h2>Editar Categoría</h2>
+            <form id="form-edit-category" class="form-modal">
+                <input type="hidden" id="edit-category-id">
+                
+                <div class="form-group">
+                    <label for="edit-category-description">Descripción:</label>
+                    <textarea id="edit-category-description" required></textarea>
+                </div>
 
+                <div class="form-buttons">
+                    <button type="submit" class="btn-submit">Guardar Cambios</button>
+                    <button type="button" class="btn-cancel" data-modal="modal-edit-category">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 	<script src="../js/employee.js"></script>
 </body>
 </html>

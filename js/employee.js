@@ -254,6 +254,39 @@ class EmployeeSystemsManager {
 			throw error;
 		}
 	}
+
+	async getCategoryById(id) {
+		try {
+			const respuesta = await fetch(`http://localhost:3000/api/categorias/${id}`);
+			if (!respuesta.ok) throw new Error('No se pudo obtener la categoría');
+			return await respuesta.json();
+		} catch (error) {
+			console.error('Error en getCategoryById:', error);
+			throw error;
+		}
+	}
+
+	async updateCategory(id, descripcion) {
+		try {
+			const respuesta = await fetch(`http://localhost:3000/api/categorias/${id}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ descripcion })
+			});
+
+			if (!respuesta.ok) {
+				const errorData = await respuesta.json();
+				throw new Error(errorData.error || 'Error al actualizar la categoría');
+			}
+
+			return await respuesta.json();
+		} catch (error) {
+			console.error('Error en updateCategory:', error);
+			throw error;
+		}
+	}
 }
 
 // ====================================
@@ -275,6 +308,7 @@ class EmployeeSystemsUI {
 		this.renderIncidentsTable();
 		this.setupEditArticleModal();
 		this.setupCategoryForm();
+		this.setupEditCategoryForm();
 	}
 
 	// ========== MENÚ LATERAL ==========
@@ -504,55 +538,53 @@ class EmployeeSystemsUI {
 	}
 
 	async renderCategoriesTable() {
-		// 1. Pide las categorías a la base de datos mediante la API
-		const categories = await this.manager.getCategories();
+        const categories = await this.manager.getCategories();
+        const tbody = document.getElementById('categories-table-body');
+        if (!tbody) return;
 
-		const tbody = document.getElementById('categories-table-body');
-		const emptyState = document.getElementById('categories-empty'); // O el elemento que muestra "No hay categorías registradas"
+        tbody.innerHTML = '';
 
-		if (!tbody) return;
-		tbody.innerHTML = '';
+        if (!categories || categories.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No hay categorías registradas</td></tr>';
+            return;
+        }
 
-		if (!categories || categories.length === 0) {
-			if (emptyState) emptyState.style.display = 'block';
-			return;
-		}
+        categories.forEach(cat => {
+            // 1. Creamos el elemento 'row' aquí adentro para que exista
+            const row = document.createElement('tr');
 
-		if (emptyState) emptyState.style.display = 'none';
+            row.innerHTML = `
+                <td>${cat.id_categoria}</td>
+                <td>${cat.descripcion}</td>
+                <td>${cat.activo === 1 ? 'Activo' : 'Inactivo'}</td>
+                <td>
+                    <button type="button" class="btn-edit-category" style="padding: 0.35rem 0.6rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Editar</button>
+                    <button type="button" class="btn-delete-category" style="padding: 0.35rem 0.6rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Baja</button>
+                </td>
+            `;
 
-		// 2. Dibuja cada fila con los datos reales de PostgreSQL
-		categories.forEach(cat => {
-			const row = document.createElement('tr');
-			row.innerHTML = `
-            <td>${cat.id_categoria}</td>
-            <td>${cat.descripcion}</td>
-            <td>${cat.activo === 1 ? 'Activo' : 'Inactivo'}</td>
-            <td>
-                <div style="display: flex; gap: 0.3rem;">
-                    <button class="btn-edit-category" data-id="${cat.id_categoria}" style="padding: 0.35rem 0.6rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Editar
-                    </button>
-                    <button class="btn-delete-category" data-id="${cat.id_categoria}" style="padding: 0.35rem 0.6rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Baja
-                    </button>
-                </div>
-            </td>
-        `;
-			tbody.appendChild(row);
-			const btnDelete = row.querySelector('.btn-delete-category');
-			btnDelete.addEventListener('click', async () => {
-				const confirmar = confirm(`¿Estás seguro de dar de baja la categoría "${cat.descripcion}"?`);
-				if (confirmar) {
-					try {
-						await this.manager.bajaLogicaCategoria(cat.id_categoria);
-						await this.renderCategoriesTable(); // Refresca la tabla automáticamente
-					} catch (error) {
-						alert('No se pudo procesar la baja: ' + error.message);
-					}
-				}
-			});
-		});
-	}
+            // 2. Ahora 'row' SÍ está definido dentro del forEach:
+            const btnEdit = row.querySelector('.btn-edit-category');
+            if (btnEdit) {
+                btnEdit.addEventListener('click', () => {
+                    this.openEditCategoryModal(cat.id_categoria);
+                });
+            }
+
+            const btnDelete = row.querySelector('.btn-delete-category');
+            if (btnDelete) {
+                btnDelete.addEventListener('click', async () => {
+                    if (confirm(`¿Dar de baja la categoría "${cat.descripcion}"?`)) {
+                        await this.manager.bajaLogicaCategoria(cat.id_categoria);
+                        await this.renderCategoriesTable();
+                    }
+                });
+            }
+
+            // 3. Agregamos la fila al cuerpo de la tabla
+            tbody.appendChild(row);
+        });
+    }
 
 	// ========== INCIDENCIAS ==========
 	renderIncidentsTable() {
@@ -693,11 +725,11 @@ class EmployeeSystemsUI {
 
 		form.addEventListener('submit', async (e) => {
 			e.preventDefault();
-			const input = document.getElementById('category-description');
-			const descripcion = input ? input.value.trim() : '';
+			const inputDesc = document.getElementById('category-description');
+			const descripcion = inputDesc ? inputDesc.value.trim() : '';
 
 			if (!descripcion) {
-				alert('Ingresa una descripción para la categoría.');
+				alert('Por favor, ingresa una descripción para la categoría.');
 				return;
 			}
 
@@ -707,21 +739,21 @@ class EmployeeSystemsUI {
 				if (typeof this.closeModal === 'function') {
 					this.closeModal('modal-new-category');
 				}
-				alert('Categoría creada con éxito');
-				// Si ya tienes la tabla de categorías, acá llamarás a this.renderCategoriesTable();
+				await this.renderCategoriesTable();
+				alert('Categoría creada exitosamente.');
 			} catch (error) {
-				alert('No se pudo guardar la categoría.');
+				alert('Error al crear la categoría: ' + error.message);
 			}
 		});
 	}
+
 	setupCategoryForm() {
-		// ID del formulario del modal de nueva categoría
 		const form = document.getElementById('form-new-category');
 		if (!form) return;
 
 		form.addEventListener('submit', async (e) => {
 			e.preventDefault();
-			const inputDesc = document.getElementById('category-description'); // o el ID de tu input
+			const inputDesc = document.getElementById('category-description');
 			const descripcion = inputDesc ? inputDesc.value.trim() : '';
 
 			if (!descripcion) {
@@ -730,14 +762,11 @@ class EmployeeSystemsUI {
 			}
 
 			try {
-				// Llama al POST /api/categorias a través del manager
 				await this.manager.createCategory(descripcion);
-
-				// Limpia y cierra el modal
 				form.reset();
-				this.closeModal('modal-new-category'); // Ajusta con tu función/ID de modal
-
-				// Vuelve a renderizar la tabla para mostrar la nueva categoría recién insertada
+				if (typeof this.closeModal === 'function') {
+					this.closeModal('modal-new-category');
+				}
 				await this.renderCategoriesTable();
 				alert('Categoría creada exitosamente.');
 			} catch (error) {
@@ -745,6 +774,75 @@ class EmployeeSystemsUI {
 			}
 		});
 	}
+
+	setupEditCategoryForm() {
+        const form = document.getElementById('form-edit-category');
+        if (!form) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-category-id').value;
+            const inputDesc = document.getElementById('edit-category-description');
+            const descripcion = inputDesc ? inputDesc.value.trim() : '';
+
+            if (!descripcion) {
+                alert('La descripción no puede estar vacía.');
+                return;
+            }
+
+            try {
+                await this.manager.updateCategory(id, descripcion);
+
+                // Cerrar modal
+                if (typeof this.closeModal === 'function') {
+                    this.closeModal('modal-edit-category');
+                } else {
+                    const modal = document.getElementById('modal-edit-category');
+                    if (modal) modal.classList.remove('active');
+                }
+
+                await this.renderCategoriesTable();
+                alert('Categoría actualizada con éxito');
+            } catch (error) {
+                alert('Error al modificar la categoría: ' + error.message);
+            }
+        });
+    }
+	async openEditCategoryModal(id) {
+		try {
+			const categoria = await this.manager.getCategoryById(id);
+
+			// Ajusta con los IDs reales de tus inputs en el modal de edición
+			const inputId = document.getElementById('edit-category-id');
+			const inputDesc = document.getElementById('edit-category-description');
+
+			if (inputId) inputId.value = categoria.id_categoria;
+			if (inputDesc) inputDesc.value = categoria.descripcion;
+
+			// Mostrar modal
+			const modal = document.getElementById('modal-edit-category');
+			if (modal) modal.style.display = 'flex'; // o la clase/método que uses para abrirlo
+		} catch (error) {
+			alert('Error al cargar la información de la categoría');
+		}
+	}
+
+	async openEditCategoryModal(id) {
+        try {
+            const categoria = await this.manager.getCategoryById(id);
+
+            const inputId = document.getElementById('edit-category-id');
+            const inputDesc = document.getElementById('edit-category-description');
+
+            if (inputId) inputId.value = categoria.id_categoria;
+            if (inputDesc) inputDesc.value = categoria.descripcion;
+
+            const modal = document.getElementById('modal-edit-category');
+            if (modal) modal.classList.add('active'); // O modal.style.display = 'flex'; según use tu CSS
+        } catch (error) {
+            alert('Error al obtener la categoría: ' + error.message);
+        }
+    }
 }
 
 // ====================================

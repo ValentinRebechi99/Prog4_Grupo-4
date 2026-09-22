@@ -168,6 +168,24 @@ app.get('/api/categorias', async (req, res) => {
         res.status(500).json({ error: 'Error al listar categorías' });
     }
 });
+app.get('/api/categorias/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resultado = await pool.query(
+            'SELECT * FROM categorias WHERE id_categoria = $1 AND activo = 1',
+            [id]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: 'Categoría no encontrada' });
+        }
+
+        res.status(200).json(resultado.rows[0]);
+    } catch (error) {
+        console.error('Error en GET /api/categorias/:id:', error);
+        res.status(500).json({ error: 'Error al consultar la categoría' });
+    }
+});
 app.post('/api/categorias', async (req, res) => {
     try {
         const { descripcion } = req.body;
@@ -210,5 +228,33 @@ app.patch('/api/categorias/:id', async (req, res) => {
     } catch (error) {
         console.error('Error en PATCH /api/categorias/:id:', error);
         res.status(500).json({ error: 'Error al dar de baja la categoría' });
+    }
+});
+
+app.put('/api/categorias/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { descripcion } = req.body;
+
+        if (!descripcion || !descripcion.trim()) {
+            return res.status(400).json({ error: 'La descripción es obligatoria' });
+        }
+
+        const query = `
+            UPDATE categorias
+            SET descripcion = $1
+            WHERE id_categoria = $2 AND activo = 1
+            RETURNING *
+        `;
+        const resultado = await pool.query(query, [descripcion.trim(), id]);
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: 'Categoría no encontrada' });
+        }
+
+        res.status(200).json(resultado.rows[0]);
+    } catch (error) {
+        console.error('Error en PUT /api/categorias/:id:', error);
+        res.status(500).json({ error: 'Error interno al actualizar la categoría' });
     }
 });
