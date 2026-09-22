@@ -79,15 +79,15 @@ class EmployeeSystemsManager {
 
 	// ========== CATEGORÍAS ==========
 	async getCategories() {
-    try {
-        const res = await fetch('http://localhost:3000/api/categorias');
-        if (!res.ok) throw new Error('Error al obtener categorías');
-        return await res.json();
-    } catch (error) {
-        console.error('Error en getCategories:', error);
-        return [];
-    }
-}
+		try {
+			const res = await fetch('http://localhost:3000/api/categorias');
+			if (!res.ok) throw new Error('Error al obtener categorías');
+			return await res.json();
+		} catch (error) {
+			console.error('Error en getCategories:', error);
+			return [];
+		}
+	}
 
 	addCategory(description, status) {
 		const categories = this.getCategories();
@@ -143,15 +143,15 @@ class EmployeeSystemsManager {
 	}
 
 	async getArticleById(id) {
-        try {
-            const respuesta = await fetch(`http://localhost:3000/api/articulos/${id}`);
-            if (!respuesta.ok) throw new Error('Artículo no encontrado');
-            return await respuesta.json();
-        } catch (error) {
-            console.error('Error al obtener artículo:', error);
-            throw error;
-        }
-    }
+		try {
+			const respuesta = await fetch(`http://localhost:3000/api/articulos/${id}`);
+			if (!respuesta.ok) throw new Error('Artículo no encontrado');
+			return await respuesta.json();
+		} catch (error) {
+			console.error('Error al obtener artículo:', error);
+			throw error;
+		}
+	}
 
 	async nuevoArticulo(articuloData) {
 		try {
@@ -175,67 +175,85 @@ class EmployeeSystemsManager {
 	}
 
 	async bajaLogicaArticulo(id) {
-        try {
-            const respuesta = await fetch(`http://localhost:3000/api/articulos/${id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+		try {
+			const respuesta = await fetch(`http://localhost:3000/api/articulos/${id}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
 
-            if (!respuesta.ok) {
-                throw new Error(`Error al dar de baja: ${respuesta.status}`);
-            }
+			if (!respuesta.ok) {
+				throw new Error(`Error al dar de baja: ${respuesta.status}`);
+			}
 
-            return await respuesta.json();
-        } catch (error) {
-            console.error('Error en bajaLogicaArticulo:', error);
-            throw error;
-        }
-    }
+			return await respuesta.json();
+		} catch (error) {
+			console.error('Error en bajaLogicaArticulo:', error);
+			throw error;
+		}
+	}
 
 	async modificarArticulo(id, data) {
-        try {
-            const respuesta = await fetch(`http://localhost:3000/api/articulos/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
+		try {
+			const respuesta = await fetch(`http://localhost:3000/api/articulos/${id}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(data)
+			});
 
-            if (!respuesta.ok) {
-                throw new Error(`Error al modificar: ${respuesta.status}`);
-            }
+			if (!respuesta.ok) {
+				throw new Error(`Error al modificar: ${respuesta.status}`);
+			}
 
-            return await respuesta.json();
-        } catch (error) {
-            console.error('Error en modificarArticulo:', error);
-            throw error;
-        }
-    }
+			return await respuesta.json();
+		} catch (error) {
+			console.error('Error en modificarArticulo:', error);
+			throw error;
+		}
+	}
 
 	async createCategory(descripcion) {
-        try {
-            const respuesta = await fetch('http://localhost:3000/api/categorias', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ descripcion })
-            });
+		try {
+			const respuesta = await fetch('http://localhost:3000/api/categorias', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ descripcion })
+			});
 
-            if (!respuesta.ok) {
-                const errorData = await respuesta.json();
-                throw new Error(errorData.error || 'Error al crear la categoría');
-            }
+			if (!respuesta.ok) {
+				const errorData = await respuesta.json();
+				throw new Error(errorData.error || 'Error al crear la categoría');
+			}
 
-            return await respuesta.json();
-        } catch (error) {
-            console.error('Error en createCategory:', error);
-            throw error;
-        }
-    }
+			return await respuesta.json();
+		} catch (error) {
+			console.error('Error en createCategory:', error);
+			throw error;
+		}
+	}
+
+	async bajaLogicaCategoria(id) {
+		try {
+			const respuesta = await fetch(`http://localhost:3000/api/categorias/${id}`, {
+				method: 'PATCH'
+			});
+
+			if (!respuesta.ok) {
+				const errorData = await respuesta.json();
+				throw new Error(errorData.error || 'Error al procesar la baja');
+			}
+
+			return await respuesta.json();
+		} catch (error) {
+			console.error('Error en bajaLogicaCategoria:', error);
+			throw error;
+		}
+	}
 }
 
 // ====================================
@@ -302,104 +320,104 @@ class EmployeeSystemsUI {
 
 	// ========== MODALES - ARTÍCULOS ==========
 	setupArticleModals() {
-        const btnNewArticle = document.getElementById('btn-new-article');
-        const modal = document.getElementById('modal-new-article');
-        const formNewArticle = document.getElementById('form-new-article');
+		const btnNewArticle = document.getElementById('btn-new-article');
+		const modal = document.getElementById('modal-new-article');
+		const formNewArticle = document.getElementById('form-new-article');
 
-        // Abrir modal con botón + NUEVO
-        if (btnNewArticle && modal) {
-            btnNewArticle.addEventListener('click', () => {
-                this.openModal('modal-new-article');
-            });
-        }
+		// Abrir modal con botón + NUEVO
+		if (btnNewArticle && modal) {
+			btnNewArticle.addEventListener('click', () => {
+				this.openModal('modal-new-article');
+			});
+		}
 
-        if (modal) {
-            this.setupCloseModalButtons(modal);
+		if (modal) {
+			this.setupCloseModalButtons(modal);
 
-            // Cerrar al hacer clic en el fondo gris
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    this.closeModal('modal-new-article');
-                }
-            });
+			// Cerrar al hacer clic en el fondo gris
+			modal.addEventListener('click', (e) => {
+				if (e.target === modal) {
+					this.closeModal('modal-new-article');
+				}
+			});
 
-            // Capturar clic directo en el botón GUARDAR ARTÍCULO
-            const btnSubmit = modal.querySelector('button[type="submit"]') || 
-                              modal.querySelector('.btn-primary') ||
-                              modal.querySelector('.btn-confirm');
-            if (btnSubmit) {
-                btnSubmit.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.handleNewArticle();
-                });
-            }
-        }
+			// Capturar clic directo en el botón GUARDAR ARTÍCULO
+			const btnSubmit = modal.querySelector('button[type="submit"]') ||
+				modal.querySelector('.btn-primary') ||
+				modal.querySelector('.btn-confirm');
+			if (btnSubmit) {
+				btnSubmit.addEventListener('click', (e) => {
+					e.preventDefault();
+					this.handleNewArticle();
+				});
+			}
+		}
 
-        // Respaldo por evento submit del form
-        if (formNewArticle) {
-            formNewArticle.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleNewArticle();
-            });
-        }
-    }
+		// Respaldo por evento submit del form
+		if (formNewArticle) {
+			formNewArticle.addEventListener('submit', (e) => {
+				e.preventDefault();
+				this.handleNewArticle();
+			});
+		}
+	}
 
 	async handleNewArticle() {
-        const modal = document.getElementById('modal-new-article');
-        
-        // Busca los inputs por ID o por etiqueta dentro del modal
-        const inputTipo = document.getElementById('article-type') || 
-                          modal?.querySelector('input[type="text"]');
-        const inputDescripcion = document.getElementById('article-description') || 
-                                 modal?.querySelector('textarea');
+		const modal = document.getElementById('modal-new-article');
 
-        const tipo = inputTipo ? inputTipo.value.trim() : '';
-        const descripcion = inputDescripcion ? inputDescripcion.value.trim() : '';
+		// Busca los inputs por ID o por etiqueta dentro del modal
+		const inputTipo = document.getElementById('article-type') ||
+			modal?.querySelector('input[type="text"]');
+		const inputDescripcion = document.getElementById('article-description') ||
+			modal?.querySelector('textarea');
 
-        if (!descripcion && !tipo) {
-            alert('Por favor, ingresa los datos del artículo.');
-            return;
-        }
+		const tipo = inputTipo ? inputTipo.value.trim() : '';
+		const descripcion = inputDescripcion ? inputDescripcion.value.trim() : '';
 
-        const textoFinal = tipo && descripcion ? `${tipo} - ${descripcion}` : (descripcion || tipo);
+		if (!descripcion && !tipo) {
+			alert('Por favor, ingresa los datos del artículo.');
+			return;
+		}
 
-        try {
-            await this.manager.nuevoArticulo({
-                descripcion: textoFinal,
-                id_area: 1,
-                id_categoria: 1
-            });
+		const textoFinal = tipo && descripcion ? `${tipo} - ${descripcion}` : (descripcion || tipo);
 
-            // Limpiar inputs manualmente
-            if (inputTipo) inputTipo.value = '';
-            if (inputDescripcion) inputDescripcion.value = '';
+		try {
+			await this.manager.nuevoArticulo({
+				descripcion: textoFinal,
+				id_area: 1,
+				id_categoria: 1
+			});
 
-            this.closeModal('modal-new-article');
-            await this.renderArticlesTable();
-        } catch (error) {
-            console.error(error);
-            alert('Error al guardar. Revisa la consola y que server.js esté corriendo.');
-        }
-    }
+			// Limpiar inputs manualmente
+			if (inputTipo) inputTipo.value = '';
+			if (inputDescripcion) inputDescripcion.value = '';
+
+			this.closeModal('modal-new-article');
+			await this.renderArticlesTable();
+		} catch (error) {
+			console.error(error);
+			alert('Error al guardar. Revisa la consola y que server.js esté corriendo.');
+		}
+	}
 
 	async renderArticlesTable() {
-        const articles = await this.manager.getArticles();
-        const tbody = document.getElementById('articles-table-body');
-        const emptyState = document.getElementById('articles-empty');
+		const articles = await this.manager.getArticles();
+		const tbody = document.getElementById('articles-table-body');
+		const emptyState = document.getElementById('articles-empty');
 
-        if (!tbody) return;
-        tbody.innerHTML = '';
+		if (!tbody) return;
+		tbody.innerHTML = '';
 
-        if (!articles || articles.length === 0) {
-            if (emptyState) emptyState.style.display = 'block';
-            return;
-        }
+		if (!articles || articles.length === 0) {
+			if (emptyState) emptyState.style.display = 'block';
+			return;
+		}
 
-        if (emptyState) emptyState.style.display = 'none';
+		if (emptyState) emptyState.style.display = 'none';
 
-        articles.forEach(article => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
+		articles.forEach(article => {
+			const row = document.createElement('tr');
+			row.innerHTML = `
                 <td>${article.id_articulo}</td>
                 <td>Área: ${article.id_area} | Cat: ${article.id_categoria}</td>
                 <td>${article.descripcion}</td>
@@ -417,29 +435,29 @@ class EmployeeSystemsUI {
                 </td>
             `;
 
-            // Enlazar el clic de Editar pasando el ID
-            const btnEdit = row.querySelector('.btn-edit-article');
-            btnEdit.addEventListener('click', () => {
-                this.openEditModal(article.id_articulo);
-            });
+			// Enlazar el clic de Editar pasando el ID
+			const btnEdit = row.querySelector('.btn-edit-article');
+			btnEdit.addEventListener('click', () => {
+				this.openEditModal(article.id_articulo);
+			});
 
-            // Enlazar el clic de Baja
-            const btnDelete = row.querySelector('.btn-delete-article');
-            btnDelete.addEventListener('click', async () => {
-                const confirmar = confirm(`¿Estás seguro de que deseas dar de baja el artículo "${article.descripcion}"?`);
-                if (confirmar) {
-                    try {
-                        await this.manager.bajaLogicaArticulo(article.id_articulo);
-                        await this.renderArticlesTable();
-                    } catch (error) {
-                        alert('No se pudo procesar la baja del artículo.');
-                    }
-                }
-            });
+			// Enlazar el clic de Baja
+			const btnDelete = row.querySelector('.btn-delete-article');
+			btnDelete.addEventListener('click', async () => {
+				const confirmar = confirm(`¿Estás seguro de que deseas dar de baja el artículo "${article.descripcion}"?`);
+				if (confirmar) {
+					try {
+						await this.manager.bajaLogicaArticulo(article.id_articulo);
+						await this.renderArticlesTable();
+					} catch (error) {
+						alert('No se pudo procesar la baja del artículo.');
+					}
+				}
+			});
 
-            tbody.appendChild(row);
-        });
-    }
+			tbody.appendChild(row);
+		});
+	}
 	// ========== MODALES - CATEGORÍAS ==========
 	setupCategoryModals() {
 		const btnNewCategory = document.getElementById('btn-new-category');
@@ -486,26 +504,26 @@ class EmployeeSystemsUI {
 	}
 
 	async renderCategoriesTable() {
-    // 1. Pide las categorías a la base de datos mediante la API
-    const categories = await this.manager.getCategories();
-    
-    const tbody = document.getElementById('categories-table-body');
-    const emptyState = document.getElementById('categories-empty'); // O el elemento que muestra "No hay categorías registradas"
+		// 1. Pide las categorías a la base de datos mediante la API
+		const categories = await this.manager.getCategories();
 
-    if (!tbody) return;
-    tbody.innerHTML = '';
+		const tbody = document.getElementById('categories-table-body');
+		const emptyState = document.getElementById('categories-empty'); // O el elemento que muestra "No hay categorías registradas"
 
-    if (!categories || categories.length === 0) {
-        if (emptyState) emptyState.style.display = 'block';
-        return;
-    }
+		if (!tbody) return;
+		tbody.innerHTML = '';
 
-    if (emptyState) emptyState.style.display = 'none';
+		if (!categories || categories.length === 0) {
+			if (emptyState) emptyState.style.display = 'block';
+			return;
+		}
 
-    // 2. Dibuja cada fila con los datos reales de PostgreSQL
-    categories.forEach(cat => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
+		if (emptyState) emptyState.style.display = 'none';
+
+		// 2. Dibuja cada fila con los datos reales de PostgreSQL
+		categories.forEach(cat => {
+			const row = document.createElement('tr');
+			row.innerHTML = `
             <td>${cat.id_categoria}</td>
             <td>${cat.descripcion}</td>
             <td>${cat.activo === 1 ? 'Activo' : 'Inactivo'}</td>
@@ -520,9 +538,21 @@ class EmployeeSystemsUI {
                 </div>
             </td>
         `;
-        tbody.appendChild(row);
-    });
-}
+			tbody.appendChild(row);
+			const btnDelete = row.querySelector('.btn-delete-category');
+			btnDelete.addEventListener('click', async () => {
+				const confirmar = confirm(`¿Estás seguro de dar de baja la categoría "${cat.descripcion}"?`);
+				if (confirmar) {
+					try {
+						await this.manager.bajaLogicaCategoria(cat.id_categoria);
+						await this.renderCategoriesTable(); // Refresca la tabla automáticamente
+					} catch (error) {
+						alert('No se pudo procesar la baja: ' + error.message);
+					}
+				}
+			});
+		});
+	}
 
 	// ========== INCIDENCIAS ==========
 	renderIncidentsTable() {
@@ -566,7 +596,7 @@ class EmployeeSystemsUI {
 			tbody.appendChild(row);
 		});
 
-		
+
 	}
 
 	// ========== MODALES - FUNCIONES GENÉRICAS ==========
@@ -610,111 +640,111 @@ class EmployeeSystemsUI {
 	}
 
 	setupEditArticleModal() {
-        const modal = document.getElementById('modal-edit-article');
-        const form = document.getElementById('form-edit-article');
+		const modal = document.getElementById('modal-edit-article');
+		const form = document.getElementById('form-edit-article');
 
-        if (modal) {
-            this.setupCloseModalButtons(modal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) this.closeModal('modal-edit-article');
-            });
-        }
+		if (modal) {
+			this.setupCloseModalButtons(modal);
+			modal.addEventListener('click', (e) => {
+				if (e.target === modal) this.closeModal('modal-edit-article');
+			});
+		}
 
-        if (form) {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const id = document.getElementById('edit-article-id').value;
-                const descripcion = document.getElementById('edit-article-description').value.trim();
+		if (form) {
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const id = document.getElementById('edit-article-id').value;
+				const descripcion = document.getElementById('edit-article-description').value.trim();
 
-                if (!descripcion) {
-                    alert('La descripción no puede estar vacía');
-                    return;
-                }
+				if (!descripcion) {
+					alert('La descripción no puede estar vacía');
+					return;
+				}
 
-                try {
-                    await this.manager.modificarArticulo(id, { descripcion });
-                    this.closeModal('modal-edit-article');
-                    await this.renderArticlesTable();
-                } catch (error) {
-                    alert('Error al actualizar el artículo');
-                }
-            });
-        }
-    }
+				try {
+					await this.manager.modificarArticulo(id, { descripcion });
+					this.closeModal('modal-edit-article');
+					await this.renderArticlesTable();
+				} catch (error) {
+					alert('Error al actualizar el artículo');
+				}
+			});
+		}
+	}
 
-    async openEditModal(id) {
-        try {
-            // Consulta el endpoint GET /api/articulos/:id (Read)
-            const article = await this.manager.getArticleById(id);
+	async openEditModal(id) {
+		try {
+			// Consulta el endpoint GET /api/articulos/:id (Read)
+			const article = await this.manager.getArticleById(id);
 
-            // Rellena los campos con la respuesta fresca de la base de datos
-            document.getElementById('edit-article-id').value = article.id_articulo;
-            document.getElementById('edit-article-description').value = article.descripcion;
-            
-            this.openModal('modal-edit-article');
-        } catch (error) {
-            alert('No se pudo cargar la información del artículo.');
-        }
-    }
+			// Rellena los campos con la respuesta fresca de la base de datos
+			document.getElementById('edit-article-id').value = article.id_articulo;
+			document.getElementById('edit-article-description').value = article.descripcion;
+
+			this.openModal('modal-edit-article');
+		} catch (error) {
+			alert('No se pudo cargar la información del artículo.');
+		}
+	}
 
 	setupCategoryForm() {
-        const form = document.getElementById('form-new-category');
-        if (!form) return;
+		const form = document.getElementById('form-new-category');
+		if (!form) return;
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('category-description');
-            const descripcion = input ? input.value.trim() : '';
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const input = document.getElementById('category-description');
+			const descripcion = input ? input.value.trim() : '';
 
-            if (!descripcion) {
-                alert('Ingresa una descripción para la categoría.');
-                return;
-            }
+			if (!descripcion) {
+				alert('Ingresa una descripción para la categoría.');
+				return;
+			}
 
-            try {
-                await this.manager.createCategory(descripcion);
-                form.reset();
-                if (typeof this.closeModal === 'function') {
-                    this.closeModal('modal-new-category');
-                }
-                alert('Categoría creada con éxito');
-                // Si ya tienes la tabla de categorías, acá llamarás a this.renderCategoriesTable();
-            } catch (error) {
-                alert('No se pudo guardar la categoría.');
-            }
-        });
-    }
+			try {
+				await this.manager.createCategory(descripcion);
+				form.reset();
+				if (typeof this.closeModal === 'function') {
+					this.closeModal('modal-new-category');
+				}
+				alert('Categoría creada con éxito');
+				// Si ya tienes la tabla de categorías, acá llamarás a this.renderCategoriesTable();
+			} catch (error) {
+				alert('No se pudo guardar la categoría.');
+			}
+		});
+	}
 	setupCategoryForm() {
-    // ID del formulario del modal de nueva categoría
-    const form = document.getElementById('form-new-category');
-    if (!form) return;
+		// ID del formulario del modal de nueva categoría
+		const form = document.getElementById('form-new-category');
+		if (!form) return;
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const inputDesc = document.getElementById('category-description'); // o el ID de tu input
-        const descripcion = inputDesc ? inputDesc.value.trim() : '';
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const inputDesc = document.getElementById('category-description'); // o el ID de tu input
+			const descripcion = inputDesc ? inputDesc.value.trim() : '';
 
-        if (!descripcion) {
-            alert('Por favor, ingresa una descripción para la categoría.');
-            return;
-        }
+			if (!descripcion) {
+				alert('Por favor, ingresa una descripción para la categoría.');
+				return;
+			}
 
-        try {
-            // Llama al POST /api/categorias a través del manager
-            await this.manager.createCategory(descripcion);
+			try {
+				// Llama al POST /api/categorias a través del manager
+				await this.manager.createCategory(descripcion);
 
-            // Limpia y cierra el modal
-            form.reset();
-            this.closeModal('modal-new-category'); // Ajusta con tu función/ID de modal
+				// Limpia y cierra el modal
+				form.reset();
+				this.closeModal('modal-new-category'); // Ajusta con tu función/ID de modal
 
-            // Vuelve a renderizar la tabla para mostrar la nueva categoría recién insertada
-            await this.renderCategoriesTable();
-            alert('Categoría creada exitosamente.');
-        } catch (error) {
-            alert('Error al crear la categoría: ' + error.message);
-        }
-    });
-}
+				// Vuelve a renderizar la tabla para mostrar la nueva categoría recién insertada
+				await this.renderCategoriesTable();
+				alert('Categoría creada exitosamente.');
+			} catch (error) {
+				alert('Error al crear la categoría: ' + error.message);
+			}
+		});
+	}
 }
 
 // ====================================

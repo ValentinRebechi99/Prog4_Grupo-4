@@ -190,3 +190,25 @@ app.post('/api/categorias', async (req, res) => {
         res.status(500).json({ error: 'Error al crear la categoría' });
     }
 });
+
+app.patch('/api/categorias/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const query = `
+            UPDATE categorias
+            SET activo = 0
+            WHERE id_categoria = $1
+            RETURNING *
+        `;
+        const resultado = await pool.query(query, [id]);
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: 'Categoría no encontrada' });
+        }
+
+        res.status(200).json(resultado.rows[0]);
+    } catch (error) {
+        console.error('Error en PATCH /api/categorias/:id:', error);
+        res.status(500).json({ error: 'Error al dar de baja la categoría' });
+    }
+});
