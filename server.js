@@ -62,29 +62,18 @@ app.get('/api/articulos', async (req, res) => {
 // POST: Registrar un nuevo artículo
 app.post('/api/articulos', async (req, res) => {
     try {
-        const { descripcion, id_area, id_categoria } = req.body;
+        const { id_categoria, descripcion, id_area } = req.body;
 
-        // Validación básica de entrada
-        if (!descripcion) {
-            return res.status(400).json({ error: 'La descripción es obligatoria' });
-        }
-
-        // Inserción parametrizada para evitar SQL Injection
-        // Se asumen valores predeterminados (1) si no vienen área o categoría
         const query = `
-            INSERT INTO articulos (descripcion, id_area, id_categoria, activo)
+            INSERT INTO articulos (id_categoria, descripcion, id_area, activo)
             VALUES ($1, $2, $3, 1)
             RETURNING *
         `;
-        const values = [descripcion, id_area || 1, id_categoria || 1];
-
-        const resultado = await pool.query(query, values);
-
-        // Retorna estado 201 (Created) y el artículo recién insertado
+        const resultado = await pool.query(query, [id_categoria, descripcion.trim(), id_area]);
         res.status(201).json(resultado.rows[0]);
     } catch (error) {
         console.error('Error en POST /api/articulos:', error);
-        res.status(500).json({ error: 'Error al registrar artículo en la base de datos' });
+        res.status(500).json({ error: 'Error al registrar el artículo' });
     }
 });
 
@@ -95,21 +84,14 @@ app.listen(3000, () => {
 app.patch('/api/articulos/:id', async (req, res) => {
     try {
         const { id } = req.params;
-
-        const query = `
-            UPDATE articulos 
-            SET activo = 0 
-            WHERE id_articulo = $1 
-            RETURNING *
-        `;
-        const resultado = await pool.query(query, [id]);
-
+        const resultado = await pool.query(
+            'UPDATE articulos SET activo = 0 WHERE id_articulo = $1 RETURNING *',
+            [id]
+        );
         if (resultado.rows.length === 0) {
             return res.status(404).json({ error: 'Artículo no encontrado' });
         }
-
-        // 200 OK devolviendo el recurso actualizado
-        res.status(200).json(resultado.rows[0]);
+        res.status(200).json({ mensaje: 'Artículo dado de baja correctamente' });
     } catch (error) {
         console.error('Error en PATCH /api/articulos/:id:', error);
         res.status(500).json({ error: 'Error al dar de baja el artículo' });

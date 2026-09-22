@@ -103,29 +103,33 @@
 
 	<!-- Modal para Nuevo Artículo -->
 	<div id="modal-new-article" class="modal">
-		<div class="modal-content">
-			<span class="close-modal" data-modal="modal-new-article">&times;</span>
-			<h2>Nuevo Artículo</h2>
-			<form id="form-new-article" class="form-modal">
-				<div class="form-group">
-					<label for="article-type">Tipo:</label>
-					<input type="text" id="article-type" required>
-				</div>
-				<div class="form-group">
-					<label for="article-description">Descripción:</label>
-					<textarea id="article-description" required></textarea>
-				</div>
-				<div class="form-group">
-					<label for="article-area">Área:</label>
-					<input type="text" id="article-area" required>
-				</div>
-				<div class="form-buttons">
-					<button type="submit" class="btn-submit">Guardar</button>
-					<button type="button" class="btn-cancel" data-modal="modal-new-article">Cancelar</button>
-				</div>
-			</form>
-		</div>
-	</div>
+    <div class="modal-content">
+        <span class="close-modal" data-modal="modal-new-article">&times;</span>
+        <h2>Nuevo Artículo</h2>
+        <form id="form-new-article" class="form-modal">
+            <div class="form-group">
+                <label for="new-article-category">Categoría:</label>
+                <select id="new-article-category" required></select>
+            </div>
+            
+            <div class="form-group">
+                <label for="new-article-description">Descripción:</label>
+                <textarea id="new-article-description" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="new-article-area">Área:</label>
+                <!-- ACÁ DEBE SER SELECT, NO INPUT -->
+                <select id="new-article-area" required></select>
+            </div>
+            
+            <div class="form-buttons">
+                <button type="submit" class="btn-submit">GUARDAR</button>
+                <button type="button" class="btn-cancel" data-modal="modal-new-article">CANCELAR</button>
+            </div>
+        </form>
+    </div>
+</div>
 	<!-- Modal para Editar Artículo -->
 <div id="modal-edit-article" class="modal">
     <div class="modal-content">
