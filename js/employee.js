@@ -161,6 +161,26 @@ class EmployeeSystemsManager {
 			throw error;
 		}
 	}
+
+	async bajaLogicaArticulo(id) {
+        try {
+            const respuesta = await fetch(`http://localhost:3000/api/articulos/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!respuesta.ok) {
+                throw new Error(`Error al dar de baja: ${respuesta.status}`);
+            }
+
+            return await respuesta.json();
+        } catch (error) {
+            console.error('Error en bajaLogicaArticulo:', error);
+            throw error;
+        }
+    }
 }
 
 // ====================================
@@ -306,31 +326,50 @@ class EmployeeSystemsUI {
     }
 
 	async renderArticlesTable() {
-		const articles = await this.manager.getArticles();
-		const tbody = document.getElementById('articles-table-body');
-		const emptyState = document.getElementById('articles-empty');
+        const articles = await this.manager.getArticles();
+        const tbody = document.getElementById('articles-table-body');
+        const emptyState = document.getElementById('articles-empty');
 
-		if (!tbody) return;
-		tbody.innerHTML = '';
+        if (!tbody) return;
+        tbody.innerHTML = '';
 
-		if (!articles || articles.length === 0) {
-			if (emptyState) emptyState.style.display = 'block';
-			return;
-		}
+        if (!articles || articles.length === 0) {
+            if (emptyState) emptyState.style.display = 'block';
+            return;
+        }
 
-		// Ocultar mensaje de vacío si hay registros
-		if (emptyState) emptyState.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'none';
 
-		articles.forEach(article => {
-			const row = document.createElement('tr');
-			row.innerHTML = `
-            <td>${article.id_articulo}</td>
-            <td>Área: ${article.id_area} | Cat: ${article.id_categoria}</td>
-            <td>${article.descripcion}</td>
-        `;
-			tbody.appendChild(row);
-		});
-	}
+        articles.forEach(article => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${article.id_articulo}</td>
+                <td>Área: ${article.id_area} | Cat: ${article.id_categoria}</td>
+                <td>${article.descripcion}</td>
+                <td>
+                    <button class="btn-delete-article" data-id="${article.id_articulo}" style="padding: 0.35rem 0.75rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Dar de baja
+                    </button>
+                </td>
+            `;
+
+            // Evento para dar de baja
+            const btnDelete = row.querySelector('.btn-delete-article');
+            btnDelete.addEventListener('click', async () => {
+                const confirmar = confirm(`¿Estás seguro de que deseas dar de baja el artículo "${article.descripcion}"?`);
+                if (confirmar) {
+                    try {
+                        await this.manager.bajaLogicaArticulo(article.id_articulo);
+                        await this.renderArticlesTable(); // Refresca la tabla automáticamente
+                    } catch (error) {
+                        alert('No se pudo procesar la baja del artículo.');
+                    }
+                }
+            });
+
+            tbody.appendChild(row);
+        });
+    }
 
 	// ========== MODALES - CATEGORÍAS ==========
 	setupCategoryModals() {

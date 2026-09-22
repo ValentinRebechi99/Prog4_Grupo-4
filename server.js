@@ -36,7 +36,7 @@ app.listen(port, () => {
 
 app.get('/api/articulos', async (req, res) => {
   try {
-    const consulta = await pool.query('SELECT * FROM articulos');
+    const consulta = await pool.query('SELECT * FROM articulos WHERE activo = 1 ORDER BY id_articulo ASC');
     res.json(consulta.rows);
   } catch (error) {
     console.error('Error al obtener artículos:', error);
@@ -75,4 +75,28 @@ app.post('/api/articulos', async (req, res) => {
 
 app.listen(3000, () => {
     console.log(`Servidor corriendo en http://localhost:3000`);
+});
+
+app.patch('/api/articulos/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const query = `
+            UPDATE articulos 
+            SET activo = 0 
+            WHERE id_articulo = $1 
+            RETURNING *
+        `;
+        const resultado = await pool.query(query, [id]);
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: 'Artículo no encontrado' });
+        }
+
+        // 200 OK devolviendo el recurso actualizado
+        res.status(200).json(resultado.rows[0]);
+    } catch (error) {
+        console.error('Error en PATCH /api/articulos/:id:', error);
+        res.status(500).json({ error: 'Error al dar de baja el artículo' });
+    }
 });
