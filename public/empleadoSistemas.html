@@ -126,7 +126,36 @@
 			</form>
 		</div>
 	</div>
+	<!-- Modal para Editar Artículo -->
+<div id="modal-edit-article" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" data-modal="modal-edit-article">&times;</span>
+        <h2>Editar Artículo</h2>
+        <form id="form-edit-article" class="form-modal">
+            <input type="hidden" id="edit-article-id">
+            
+            <div class="form-group">
+                <label for="edit-article-category">Categoría:</label>
+                <select id="edit-article-category" required></select>
+            </div>
 
+            <div class="form-group">
+                <label for="edit-article-description">Descripción:</label>
+                <textarea id="edit-article-description" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-article-area">Área:</label>
+                <select id="edit-article-area" required></select>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn-submit">Guardar Cambios</button>
+                <button type="button" class="btn-cancel" data-modal="modal-edit-article">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
 	<!-- Modal para Nueva Categoría -->
 	<div id="modal-new-category" class="modal">
 		<div class="modal-content">

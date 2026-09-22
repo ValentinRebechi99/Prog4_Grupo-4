@@ -47,6 +47,27 @@ class EmployeeSystemsManager {
 	}
 
 	// ========== ARTÍCULOS ==========
+	async updateArticle(id, datos) {
+        try {
+            const respuesta = await fetch(`http://localhost:3000/api/articulos/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datos)
+            });
+
+            if (!respuesta.ok) {
+                const errorData = await respuesta.json();
+                throw new Error(errorData.error || 'Error al actualizar el artículo');
+            }
+
+            return await respuesta.json();
+        } catch (error) {
+            console.error('Error en updateArticle:', error);
+            throw error;
+        }
+    }
 	async getArticles() {
 		try {
 			const respuesta = await fetch('http://localhost:3000/api/articulos');
@@ -287,6 +308,12 @@ class EmployeeSystemsManager {
 			throw error;
 		}
 	}
+
+	async getAreas() {
+		const res = await fetch('http://localhost:3000/api/areas');
+		if (!res.ok) throw new Error('Error al obtener áreas');
+		return await res.json();
+	}
 }
 
 // ====================================
@@ -309,6 +336,7 @@ class EmployeeSystemsUI {
 		this.setupEditArticleModal();
 		this.setupCategoryForm();
 		this.setupEditCategoryForm();
+		this.setupEditArticleForm();
 	}
 
 	// ========== MENÚ LATERAL ==========
@@ -437,57 +465,40 @@ class EmployeeSystemsUI {
 	async renderArticlesTable() {
 		const articles = await this.manager.getArticles();
 		const tbody = document.getElementById('articles-table-body');
-		const emptyState = document.getElementById('articles-empty');
-
 		if (!tbody) return;
+
 		tbody.innerHTML = '';
 
-		if (!articles || articles.length === 0) {
-			if (emptyState) emptyState.style.display = 'block';
-			return;
-		}
-
-		if (emptyState) emptyState.style.display = 'none';
-
-		articles.forEach(article => {
+		articles.forEach(art => {
 			const row = document.createElement('tr');
 			row.innerHTML = `
-                <td>${article.id_articulo}</td>
-                <td>Área: ${article.id_area} | Cat: ${article.id_categoria}</td>
-                <td>${article.descripcion}</td>
-                <td>
-                    <div style="display: flex; gap: 0.3rem;">
-                        <!-- BOTÓN EDITAR (CONSUME EL GET /api/articulos/:id) -->
-                        <button class="btn-edit-article" data-id="${article.id_articulo}" style="padding: 0.35rem 0.6rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                            Editar
-                        </button>
-                        <!-- BOTÓN BAJA LÓGICA -->
-                        <button class="btn-delete-article" data-id="${article.id_articulo}" style="padding: 0.35rem 0.6rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                            Baja
-                        </button>
-                    </div>
-                </td>
-            `;
+            <td>${art.id_articulo}</td>
+            <td>${art.categoria_nombre || 'Sin categoría'}</td>
+            <td>${art.descripcion_articulo}</td>
+            <td>${art.area_nombre || 'Sin área'}</td>
+            <td>
+                <button type="button" class="btn-edit-article" data-id="${art.id_articulo}">Editar</button>
+                <button type="button" class="btn-delete-article" data-id="${art.id_articulo}">Baja</button>
+            </td>
+        `;
 
-			// Enlazar el clic de Editar pasando el ID
+			// Eventos
 			const btnEdit = row.querySelector('.btn-edit-article');
-			btnEdit.addEventListener('click', () => {
-				this.openEditModal(article.id_articulo);
-			});
+			if (btnEdit) {
+				btnEdit.addEventListener('click', () => {
+					this.openEditArticleModal(art.id_articulo);
+				});
+			}
 
-			// Enlazar el clic de Baja
 			const btnDelete = row.querySelector('.btn-delete-article');
-			btnDelete.addEventListener('click', async () => {
-				const confirmar = confirm(`¿Estás seguro de que deseas dar de baja el artículo "${article.descripcion}"?`);
-				if (confirmar) {
-					try {
-						await this.manager.bajaLogicaArticulo(article.id_articulo);
+			if (btnDelete) {
+				btnDelete.addEventListener('click', async () => {
+					if (confirm(`¿Dar de baja el artículo "${art.descripcion_articulo}"?`)) {
+						await this.manager.bajaLogicaArticulo(art.id_articulo);
 						await this.renderArticlesTable();
-					} catch (error) {
-						alert('No se pudo procesar la baja del artículo.');
 					}
-				}
-			});
+				});
+			}
 
 			tbody.appendChild(row);
 		});
@@ -538,22 +549,22 @@ class EmployeeSystemsUI {
 	}
 
 	async renderCategoriesTable() {
-        const categories = await this.manager.getCategories();
-        const tbody = document.getElementById('categories-table-body');
-        if (!tbody) return;
+		const categories = await this.manager.getCategories();
+		const tbody = document.getElementById('categories-table-body');
+		if (!tbody) return;
 
-        tbody.innerHTML = '';
+		tbody.innerHTML = '';
 
-        if (!categories || categories.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No hay categorías registradas</td></tr>';
-            return;
-        }
+		if (!categories || categories.length === 0) {
+			tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No hay categorías registradas</td></tr>';
+			return;
+		}
 
-        categories.forEach(cat => {
-            // 1. Creamos el elemento 'row' aquí adentro para que exista
-            const row = document.createElement('tr');
+		categories.forEach(cat => {
+			// 1. Creamos el elemento 'row' aquí adentro para que exista
+			const row = document.createElement('tr');
 
-            row.innerHTML = `
+			row.innerHTML = `
                 <td>${cat.id_categoria}</td>
                 <td>${cat.descripcion}</td>
                 <td>${cat.activo === 1 ? 'Activo' : 'Inactivo'}</td>
@@ -563,28 +574,28 @@ class EmployeeSystemsUI {
                 </td>
             `;
 
-            // 2. Ahora 'row' SÍ está definido dentro del forEach:
-            const btnEdit = row.querySelector('.btn-edit-category');
-            if (btnEdit) {
-                btnEdit.addEventListener('click', () => {
-                    this.openEditCategoryModal(cat.id_categoria);
-                });
-            }
+			// 2. Ahora 'row' SÍ está definido dentro del forEach:
+			const btnEdit = row.querySelector('.btn-edit-category');
+			if (btnEdit) {
+				btnEdit.addEventListener('click', () => {
+					this.openEditCategoryModal(cat.id_categoria);
+				});
+			}
 
-            const btnDelete = row.querySelector('.btn-delete-category');
-            if (btnDelete) {
-                btnDelete.addEventListener('click', async () => {
-                    if (confirm(`¿Dar de baja la categoría "${cat.descripcion}"?`)) {
-                        await this.manager.bajaLogicaCategoria(cat.id_categoria);
-                        await this.renderCategoriesTable();
-                    }
-                });
-            }
+			const btnDelete = row.querySelector('.btn-delete-category');
+			if (btnDelete) {
+				btnDelete.addEventListener('click', async () => {
+					if (confirm(`¿Dar de baja la categoría "${cat.descripcion}"?`)) {
+						await this.manager.bajaLogicaCategoria(cat.id_categoria);
+						await this.renderCategoriesTable();
+					}
+				});
+			}
 
-            // 3. Agregamos la fila al cuerpo de la tabla
-            tbody.appendChild(row);
-        });
-    }
+			// 3. Agregamos la fila al cuerpo de la tabla
+			tbody.appendChild(row);
+		});
+	}
 
 	// ========== INCIDENCIAS ==========
 	renderIncidentsTable() {
@@ -776,38 +787,38 @@ class EmployeeSystemsUI {
 	}
 
 	setupEditCategoryForm() {
-        const form = document.getElementById('form-edit-category');
-        if (!form) return;
+		const form = document.getElementById('form-edit-category');
+		if (!form) return;
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('edit-category-id').value;
-            const inputDesc = document.getElementById('edit-category-description');
-            const descripcion = inputDesc ? inputDesc.value.trim() : '';
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const id = document.getElementById('edit-category-id').value;
+			const inputDesc = document.getElementById('edit-category-description');
+			const descripcion = inputDesc ? inputDesc.value.trim() : '';
 
-            if (!descripcion) {
-                alert('La descripción no puede estar vacía.');
-                return;
-            }
+			if (!descripcion) {
+				alert('La descripción no puede estar vacía.');
+				return;
+			}
 
-            try {
-                await this.manager.updateCategory(id, descripcion);
+			try {
+				await this.manager.updateCategory(id, descripcion);
 
-                // Cerrar modal
-                if (typeof this.closeModal === 'function') {
-                    this.closeModal('modal-edit-category');
-                } else {
-                    const modal = document.getElementById('modal-edit-category');
-                    if (modal) modal.classList.remove('active');
-                }
+				// Cerrar modal
+				if (typeof this.closeModal === 'function') {
+					this.closeModal('modal-edit-category');
+				} else {
+					const modal = document.getElementById('modal-edit-category');
+					if (modal) modal.classList.remove('active');
+				}
 
-                await this.renderCategoriesTable();
-                alert('Categoría actualizada con éxito');
-            } catch (error) {
-                alert('Error al modificar la categoría: ' + error.message);
-            }
-        });
-    }
+				await this.renderCategoriesTable();
+				alert('Categoría actualizada con éxito');
+			} catch (error) {
+				alert('Error al modificar la categoría: ' + error.message);
+			}
+		});
+	}
 	async openEditCategoryModal(id) {
 		try {
 			const categoria = await this.manager.getCategoryById(id);
@@ -828,21 +839,103 @@ class EmployeeSystemsUI {
 	}
 
 	async openEditCategoryModal(id) {
-        try {
-            const categoria = await this.manager.getCategoryById(id);
+		try {
+			const categoria = await this.manager.getCategoryById(id);
 
-            const inputId = document.getElementById('edit-category-id');
-            const inputDesc = document.getElementById('edit-category-description');
+			const inputId = document.getElementById('edit-category-id');
+			const inputDesc = document.getElementById('edit-category-description');
 
-            if (inputId) inputId.value = categoria.id_categoria;
-            if (inputDesc) inputDesc.value = categoria.descripcion;
+			if (inputId) inputId.value = categoria.id_categoria;
+			if (inputDesc) inputDesc.value = categoria.descripcion;
 
-            const modal = document.getElementById('modal-edit-category');
-            if (modal) modal.classList.add('active'); // O modal.style.display = 'flex'; según use tu CSS
-        } catch (error) {
-            alert('Error al obtener la categoría: ' + error.message);
-        }
-    }
+			const modal = document.getElementById('modal-edit-category');
+			if (modal) modal.classList.add('active'); // O modal.style.display = 'flex'; según use tu CSS
+		} catch (error) {
+			alert('Error al obtener la categoría: ' + error.message);
+		}
+	}
+	async populateArticleSelects(categorySelectId, areaSelectId) {
+		const catSelect = document.getElementById(categorySelectId);
+		const areaSelect = document.getElementById(areaSelectId);
+
+		const [categorias, areas] = await Promise.all([
+			this.manager.getCategories(),
+			this.manager.getAreas()
+		]);
+
+		if (catSelect) {
+			catSelect.innerHTML = '<option value="">-- Seleccionar Categoría --</option>';
+			categorias.forEach(cat => {
+				catSelect.innerHTML += `<option value="${cat.id_categoria}">${cat.descripcion}</option>`;
+			});
+		}
+
+		if (areaSelect) {
+			areaSelect.innerHTML = '<option value="">-- Seleccionar Área --</option>';
+			areas.forEach(ar => {
+				areaSelect.innerHTML += `<option value="${ar.id_area}">${ar.descripcion}</option>`;
+			});
+		}
+	}
+	async openEditArticleModal(id) {
+		try {
+			// Cargar las opciones en los selects de categorías y áreas
+			await this.populateArticleSelects('edit-article-category', 'edit-article-area');
+
+			// Obtener datos del artículo
+			const articulo = await this.manager.getArticleById(id);
+
+			document.getElementById('edit-article-id').value = articulo.id_articulo;
+			document.getElementById('edit-article-description').value = articulo.descripcion;
+			document.getElementById('edit-article-category').value = articulo.id_categoria;
+			document.getElementById('edit-article-area').value = articulo.id_area;
+
+			// Mostrar modal
+			if (typeof this.openModal === 'function') {
+				this.openModal('modal-edit-article');
+			} else {
+				const modal = document.getElementById('modal-edit-article');
+				if (modal) modal.classList.add('active');
+			}
+		} catch (error) {
+			console.error('Error en openEditArticleModal:', error);
+			alert('No se pudo abrir el modal de edición: ' + error.message);
+		}
+	}
+	setupEditArticleForm() {
+		const form = document.getElementById('form-edit-article');
+		if (!form) return;
+
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+
+			const id = document.getElementById('edit-article-id').value;
+			const id_categoria = document.getElementById('edit-article-category').value;
+			const descripcion = document.getElementById('edit-article-description').value.trim();
+			const id_area = document.getElementById('edit-article-area').value;
+
+			if (!descripcion || !id_categoria || !id_area) {
+				alert('Por favor completa todos los campos.');
+				return;
+			}
+
+			try {
+				await this.manager.updateArticle(id, { id_categoria, descripcion, id_area });
+
+				if (typeof this.closeModal === 'function') {
+					this.closeModal('modal-edit-article');
+				} else {
+					const modal = document.getElementById('modal-edit-article');
+					if (modal) modal.classList.remove('active');
+				}
+
+				await this.renderArticlesTable();
+				alert('Artículo actualizado con éxito.');
+			} catch (error) {
+				alert('Error al guardar cambios: ' + error.message);
+			}
+		});
+	}
 }
 
 // ====================================

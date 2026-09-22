@@ -35,13 +35,28 @@ app.listen(port, () => {
 });
 
 app.get('/api/articulos', async (req, res) => {
-  try {
-    const consulta = await pool.query('SELECT * FROM articulos WHERE activo = 1 ORDER BY id_articulo ASC');
-    res.json(consulta.rows);
-  } catch (error) {
-    console.error('Error al obtener artículos:', error);
-    res.status(500).json({ error: error.message });
-  }
+    try {
+        const query = `
+            SELECT 
+                a.id_articulo,
+                a.descripcion AS descripcion_articulo,
+                a.id_categoria,
+                c.descripcion AS categoria_nombre,
+                a.id_area,
+                ar.descripcion AS area_nombre,
+                a.activo
+            FROM articulos a
+            LEFT JOIN categorias c ON a.id_categoria = c.id_categoria
+            LEFT JOIN areas ar ON a.id_area = ar.id_area
+            WHERE a.activo = 1
+            ORDER BY a.id_articulo ASC
+        `;
+        const resultado = await pool.query(query);
+        res.status(200).json(resultado.rows);
+    } catch (error) {
+        console.error('Error en GET /api/articulos:', error);
+        res.status(500).json({ error: 'Error al obtener los artículos' });
+    }
 });
 
 // POST: Registrar un nuevo artículo
@@ -136,16 +151,30 @@ app.put('/api/articulos/:id', async (req, res) => {
 app.get('/api/articulos/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const resultado = await pool.query('SELECT * FROM articulos WHERE id_articulo = $1 AND activo = 1', [id]);
+        const query = 'SELECT * FROM articulos WHERE id_articulo = $1 AND activo = 1';
+        const resultado = await pool.query(query, [id]);
+
         if (resultado.rows.length === 0) {
             return res.status(404).json({ error: 'Artículo no encontrado' });
         }
+
         res.status(200).json(resultado.rows[0]);
     } catch (error) {
-        res.status(500).json({ error: 'Error interno del servidor' });
+        console.error('Error en GET /api/articulos/:id:', error);
+        res.status(500).json({ error: 'Error al consultar el artículo' });
     }
 });
-
+app.get('/api/areas', async (req, res) => {
+    try {
+        const resultado = await pool.query(
+            'SELECT * FROM areas WHERE activo = 1 ORDER BY descripcion ASC'
+        );
+        res.status(200).json(resultado.rows);
+    } catch (error) {
+        console.error('Error en GET /api/areas:', error);
+        res.status(500).json({ error: 'Error al obtener las áreas' });
+    }
+});
 app.get('/api/areas', async (req, res) => {
     try {
         const resultado = await pool.query(
