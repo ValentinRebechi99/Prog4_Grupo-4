@@ -136,10 +136,16 @@ class EmployeeSystemsManager {
 		localStorage.setItem(this.incidentsKey, JSON.stringify(incidents));
 	}
 
-	getArticleById(code) {
-		const articles = this.getArticles();
-		return articles.find(art => art.code === code);
-	}
+	async getArticleById(id) {
+        try {
+            const respuesta = await fetch(`http://localhost:3000/api/articulos/${id}`);
+            if (!respuesta.ok) throw new Error('Artículo no encontrado');
+            return await respuesta.json();
+        } catch (error) {
+            console.error('Error al obtener artículo:', error);
+            throw error;
+        }
+    }
 
 	async nuevoArticulo(articuloData) {
 		try {
@@ -181,6 +187,27 @@ class EmployeeSystemsManager {
             throw error;
         }
     }
+
+	async modificarArticulo(id, data) {
+        try {
+            const respuesta = await fetch(`http://localhost:3000/api/articulos/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!respuesta.ok) {
+                throw new Error(`Error al modificar: ${respuesta.status}`);
+            }
+
+            return await respuesta.json();
+        } catch (error) {
+            console.error('Error en modificarArticulo:', error);
+            throw error;
+        }
+    }
 }
 
 // ====================================
@@ -200,6 +227,7 @@ class EmployeeSystemsUI {
 		this.renderArticlesTable();
 		this.renderCategoriesTable();
 		this.renderIncidentsTable();
+		this.setupEditArticleModal();
 	}
 
 	// ========== MENÚ LATERAL ==========
@@ -347,20 +375,33 @@ class EmployeeSystemsUI {
                 <td>Área: ${article.id_area} | Cat: ${article.id_categoria}</td>
                 <td>${article.descripcion}</td>
                 <td>
-                    <button class="btn-delete-article" data-id="${article.id_articulo}" style="padding: 0.35rem 0.75rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Dar de baja
-                    </button>
+                    <div style="display: flex; gap: 0.3rem;">
+                        <!-- BOTÓN EDITAR (CONSUME EL GET /api/articulos/:id) -->
+                        <button class="btn-edit-article" data-id="${article.id_articulo}" style="padding: 0.35rem 0.6rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Editar
+                        </button>
+                        <!-- BOTÓN BAJA LÓGICA -->
+                        <button class="btn-delete-article" data-id="${article.id_articulo}" style="padding: 0.35rem 0.6rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Baja
+                        </button>
+                    </div>
                 </td>
             `;
 
-            // Evento para dar de baja
+            // Enlazar el clic de Editar pasando el ID
+            const btnEdit = row.querySelector('.btn-edit-article');
+            btnEdit.addEventListener('click', () => {
+                this.openEditModal(article.id_articulo);
+            });
+
+            // Enlazar el clic de Baja
             const btnDelete = row.querySelector('.btn-delete-article');
             btnDelete.addEventListener('click', async () => {
                 const confirmar = confirm(`¿Estás seguro de que deseas dar de baja el artículo "${article.descripcion}"?`);
                 if (confirmar) {
                     try {
                         await this.manager.bajaLogicaArticulo(article.id_articulo);
-                        await this.renderArticlesTable(); // Refresca la tabla automáticamente
+                        await this.renderArticlesTable();
                     } catch (error) {
                         alert('No se pudo procesar la baja del artículo.');
                     }
@@ -370,7 +411,6 @@ class EmployeeSystemsUI {
             tbody.appendChild(row);
         });
     }
-
 	// ========== MODALES - CATEGORÍAS ==========
 	setupCategoryModals() {
 		const btnNewCategory = document.getElementById('btn-new-category');
@@ -532,6 +572,54 @@ class EmployeeSystemsUI {
 			form.reset();
 		}
 	}
+
+	setupEditArticleModal() {
+        const modal = document.getElementById('modal-edit-article');
+        const form = document.getElementById('form-edit-article');
+
+        if (modal) {
+            this.setupCloseModalButtons(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) this.closeModal('modal-edit-article');
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('edit-article-id').value;
+                const descripcion = document.getElementById('edit-article-description').value.trim();
+
+                if (!descripcion) {
+                    alert('La descripción no puede estar vacía');
+                    return;
+                }
+
+                try {
+                    await this.manager.modificarArticulo(id, { descripcion });
+                    this.closeModal('modal-edit-article');
+                    await this.renderArticlesTable();
+                } catch (error) {
+                    alert('Error al actualizar el artículo');
+                }
+            });
+        }
+    }
+
+    async openEditModal(id) {
+        try {
+            // Consulta el endpoint GET /api/articulos/:id (Read)
+            const article = await this.manager.getArticleById(id);
+
+            // Rellena los campos con la respuesta fresca de la base de datos
+            document.getElementById('edit-article-id').value = article.id_articulo;
+            document.getElementById('edit-article-description').value = article.descripcion;
+            
+            this.openModal('modal-edit-article');
+        } catch (error) {
+            alert('No se pudo cargar la información del artículo.');
+        }
+    }
 }
 
 // ====================================

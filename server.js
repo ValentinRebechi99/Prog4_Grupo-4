@@ -100,3 +100,48 @@ app.patch('/api/articulos/:id', async (req, res) => {
         res.status(500).json({ error: 'Error al dar de baja el artículo' });
     }
 });
+
+app.put('/api/articulos/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { descripcion, id_area, id_categoria } = req.body;
+
+        if (!descripcion) {
+            return res.status(400).json({ error: 'La descripción es obligatoria' });
+        }
+
+        const query = `
+            UPDATE articulos
+            SET descripcion = $1,
+                id_area = COALESCE($2, id_area),
+                id_categoria = COALESCE($3, id_categoria)
+            WHERE id_articulo = $4
+            RETURNING *
+        `;
+        const values = [descripcion, id_area || null, id_categoria || null, id];
+        const resultado = await pool.query(query, values);
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: 'Artículo no encontrado' });
+        }
+
+        // 200 OK con el artículo actualizado
+        res.status(200).json(resultado.rows[0]);
+    } catch (error) {
+        console.error('Error en PUT /api/articulos/:id:', error);
+        res.status(500).json({ error: 'Error al actualizar el artículo' });
+    }
+});
+
+app.get('/api/articulos/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resultado = await pool.query('SELECT * FROM articulos WHERE id_articulo = $1 AND activo = 1', [id]);
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: 'Artículo no encontrado' });
+        }
+        res.status(200).json(resultado.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
