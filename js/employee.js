@@ -78,10 +78,16 @@ class EmployeeSystemsManager {
 	}
 
 	// ========== CATEGORÍAS ==========
-	getCategories() {
-		const data = localStorage.getItem(this.categoriesKey);
-		return data ? JSON.parse(data) : [];
-	}
+	async getCategories() {
+    try {
+        const res = await fetch('http://localhost:3000/api/categorias');
+        if (!res.ok) throw new Error('Error al obtener categorías');
+        return await res.json();
+    } catch (error) {
+        console.error('Error en getCategories:', error);
+        return [];
+    }
+}
 
 	addCategory(description, status) {
 		const categories = this.getCategories();
@@ -208,6 +214,28 @@ class EmployeeSystemsManager {
             throw error;
         }
     }
+
+	async createCategory(descripcion) {
+        try {
+            const respuesta = await fetch('http://localhost:3000/api/categorias', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ descripcion })
+            });
+
+            if (!respuesta.ok) {
+                const errorData = await respuesta.json();
+                throw new Error(errorData.error || 'Error al crear la categoría');
+            }
+
+            return await respuesta.json();
+        } catch (error) {
+            console.error('Error en createCategory:', error);
+            throw error;
+        }
+    }
 }
 
 // ====================================
@@ -228,6 +256,7 @@ class EmployeeSystemsUI {
 		this.renderCategoriesTable();
 		this.renderIncidentsTable();
 		this.setupEditArticleModal();
+		this.setupCategoryForm();
 	}
 
 	// ========== MENÚ LATERAL ==========
@@ -456,39 +485,44 @@ class EmployeeSystemsUI {
 		this.renderCategoriesTable();
 	}
 
-	renderCategoriesTable() {
-		const categories = this.manager.getCategories();
-		const tbody = document.getElementById('categories-table-body');
-		if (!tbody) return;
-		tbody.innerHTML = '';
+	async renderCategoriesTable() {
+    // 1. Pide las categorías a la base de datos mediante la API
+    const categories = await this.manager.getCategories();
+    
+    const tbody = document.getElementById('categories-table-body');
+    const emptyState = document.getElementById('categories-empty'); // O el elemento que muestra "No hay categorías registradas"
 
-		if (categories.length === 0) {
-			tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem; color: #999;">No hay categorías registradas</td></tr>';
-			return;
-		}
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
-		categories.forEach(category => {
-			const row = document.createElement('tr');
-			row.innerHTML = `
-				<td>${category.code}</td>
-				<td>${category.description}</td>
-				<td>${category.status}</td>
-				<td>
-					<button class="btn-delete" data-code="${category.code}" style="padding: 0.5rem 1rem; background: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer;">Eliminar</button>
-				</td>
-			`;
+    if (!categories || categories.length === 0) {
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
 
-			const btnDelete = row.querySelector('.btn-delete');
-			btnDelete.addEventListener('click', () => {
-				if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
-					this.manager.deleteCategory(category.code);
-					this.renderCategoriesTable();
-				}
-			});
+    if (emptyState) emptyState.style.display = 'none';
 
-			tbody.appendChild(row);
-		});
-	}
+    // 2. Dibuja cada fila con los datos reales de PostgreSQL
+    categories.forEach(cat => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${cat.id_categoria}</td>
+            <td>${cat.descripcion}</td>
+            <td>${cat.activo === 1 ? 'Activo' : 'Inactivo'}</td>
+            <td>
+                <div style="display: flex; gap: 0.3rem;">
+                    <button class="btn-edit-category" data-id="${cat.id_categoria}" style="padding: 0.35rem 0.6rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Editar
+                    </button>
+                    <button class="btn-delete-category" data-id="${cat.id_categoria}" style="padding: 0.35rem 0.6rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Baja
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
 
 	// ========== INCIDENCIAS ==========
 	renderIncidentsTable() {
@@ -531,6 +565,8 @@ class EmployeeSystemsUI {
 
 			tbody.appendChild(row);
 		});
+
+		
 	}
 
 	// ========== MODALES - FUNCIONES GENÉRICAS ==========
@@ -620,6 +656,65 @@ class EmployeeSystemsUI {
             alert('No se pudo cargar la información del artículo.');
         }
     }
+
+	setupCategoryForm() {
+        const form = document.getElementById('form-new-category');
+        if (!form) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('category-description');
+            const descripcion = input ? input.value.trim() : '';
+
+            if (!descripcion) {
+                alert('Ingresa una descripción para la categoría.');
+                return;
+            }
+
+            try {
+                await this.manager.createCategory(descripcion);
+                form.reset();
+                if (typeof this.closeModal === 'function') {
+                    this.closeModal('modal-new-category');
+                }
+                alert('Categoría creada con éxito');
+                // Si ya tienes la tabla de categorías, acá llamarás a this.renderCategoriesTable();
+            } catch (error) {
+                alert('No se pudo guardar la categoría.');
+            }
+        });
+    }
+	setupCategoryForm() {
+    // ID del formulario del modal de nueva categoría
+    const form = document.getElementById('form-new-category');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const inputDesc = document.getElementById('category-description'); // o el ID de tu input
+        const descripcion = inputDesc ? inputDesc.value.trim() : '';
+
+        if (!descripcion) {
+            alert('Por favor, ingresa una descripción para la categoría.');
+            return;
+        }
+
+        try {
+            // Llama al POST /api/categorias a través del manager
+            await this.manager.createCategory(descripcion);
+
+            // Limpia y cierra el modal
+            form.reset();
+            this.closeModal('modal-new-category'); // Ajusta con tu función/ID de modal
+
+            // Vuelve a renderizar la tabla para mostrar la nueva categoría recién insertada
+            await this.renderCategoriesTable();
+            alert('Categoría creada exitosamente.');
+        } catch (error) {
+            alert('Error al crear la categoría: ' + error.message);
+        }
+    });
+}
 }
 
 // ====================================

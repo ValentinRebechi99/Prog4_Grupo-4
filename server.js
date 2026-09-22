@@ -145,3 +145,48 @@ app.get('/api/articulos/:id', async (req, res) => {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
+
+app.get('/api/areas', async (req, res) => {
+    try {
+        const resultado = await pool.query(
+            'SELECT id_area, descripcion FROM areas WHERE activo = 1 ORDER BY id_area ASC'
+        );
+        res.status(200).json(resultado.rows);
+    } catch (error) {
+        console.error('Error en GET /api/areas:', error);
+        res.status(500).json({ error: 'Error interno al obtener las áreas' });
+    }
+});
+app.get('/api/categorias', async (req, res) => {
+    try {
+        const resultado = await pool.query(
+            'SELECT * FROM categorias WHERE activo = 1 ORDER BY id_categoria ASC'
+        );
+        res.status(200).json(resultado.rows);
+    } catch (error) {
+        console.error('Error en GET /api/categorias:', error);
+        res.status(500).json({ error: 'Error al listar categorías' });
+    }
+});
+app.post('/api/categorias', async (req, res) => {
+    try {
+        const { descripcion } = req.body;
+
+        if (!descripcion || !descripcion.trim()) {
+            return res.status(400).json({ error: 'La descripción es obligatoria' });
+        }
+
+        const query = `
+            INSERT INTO categorias (descripcion, activo)
+            VALUES ($1, 1)
+            RETURNING *
+        `;
+        const resultado = await pool.query(query, [descripcion.trim()]);
+
+        // 201 Created cumpliendo con REST
+        res.status(201).json(resultado.rows[0]);
+    } catch (error) {
+        console.error('Error en POST /api/categorias:', error);
+        res.status(500).json({ error: 'Error al crear la categoría' });
+    }
+});
