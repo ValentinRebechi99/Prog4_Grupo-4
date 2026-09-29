@@ -1,27 +1,8 @@
 // ====================================
-// GESTIÓN DE DATOS EN LOCALSTORAGE
+// GESTIÓN DE DATOS (API - PostgreSQL)
 // ====================================
 
 class EmployeeSystemsManager {
-    constructor() {
-        this.incidentsKey = 'employee_systems_incidents';
-        this.incidentCounterKey = 'incident_counter_emp';
-        this.initializeCounters();
-    }
-
-    initializeCounters() {
-        if (!localStorage.getItem(this.incidentCounterKey)) {
-            localStorage.setItem(this.incidentCounterKey, '5000');
-        }
-    }
-
-    getNextIncidentCode() {
-        let counter = parseInt(localStorage.getItem(this.incidentCounterKey)) || 5000;
-        counter++;
-        localStorage.setItem(this.incidentCounterKey, counter);
-        return `INC-${counter}`;
-    }
-
     // ========== ARTÍCULOS ==========
     async getArticles() {
         try {
@@ -137,41 +118,6 @@ class EmployeeSystemsManager {
         if (!res.ok) throw new Error('Error al obtener áreas');
         return await res.json();
     }
-
-    // ========== INCIDENCIAS (Temporalmente LocalStorage) ==========
-    getIncidents() {
-        const data = localStorage.getItem(this.incidentsKey);
-        return data ? JSON.parse(data) : [];
-    }
-
-    addIncident(articleCode, priority) {
-        const incidents = this.getIncidents();
-        const newIncident = {
-            code: this.getNextIncidentCode(),
-            articleCode: articleCode,
-            priority: priority,
-            status: 'Abierta',
-            createdAt: new Date().toISOString()
-        };
-        incidents.push(newIncident);
-        localStorage.setItem(this.incidentsKey, JSON.stringify(incidents));
-        return newIncident;
-    }
-
-    finalizeIncident(code) {
-        let incidents = this.getIncidents();
-        const incident = incidents.find(inc => inc.code === code);
-        if (incident) {
-            incident.status = 'Cerrada';
-            localStorage.setItem(this.incidentsKey, JSON.stringify(incidents));
-        }
-    }
-
-    deleteIncident(code) {
-        let incidents = this.getIncidents();
-        incidents = incidents.filter(inc => inc.code !== code);
-        localStorage.setItem(this.incidentsKey, JSON.stringify(incidents));
-    }
 }
 
 // ====================================
@@ -181,6 +127,7 @@ class EmployeeSystemsManager {
 class EmployeeSystemsUI {
     constructor() {
         this.manager = new EmployeeSystemsManager();
+        this.incidencias = new IncidenciasManager();
         this.init();
     }
 
@@ -193,6 +140,7 @@ class EmployeeSystemsUI {
         this.setupCategoryModals();
         this.setupCategoryForm();
         this.setupEditCategoryForm();
+        this.setupCreateIncidentForm();
 
         this.renderArticlesTable();
         this.renderCategoriesTable();
@@ -231,6 +179,8 @@ class EmployeeSystemsUI {
             this.renderIncidentsTable();
         } else if (sectionId === 'categories') {
             this.renderCategoriesTable();
+        } else if (sectionId === 'create-incident') {
+            this.populateIncidentArticleSelect();
         }
     }
 
@@ -518,43 +468,140 @@ class EmployeeSystemsUI {
     }
 
     // ========== INCIDENCIAS ==========
-    renderIncidentsTable() {
-        const incidents = this.manager.getIncidents();
+
+    esPaginaDeGestion() {
+        return !document.getElementById('create-incident-form');
+    }
+
+    async populateIncidentArticleSelect() {
+        const select = document.getElementById('incident-article');
+        if (!select) return;
+
+        const valorActual = select.value;
+        const articulos = await this.manager.getArticles();
+
+        select.innerHTML = '<option value="">Selecciona un artículo</option>';
+        articulos.forEach(art => {
+            select.innerHTML += `<option value="${art.id_articulo}">${art.descripcion_articulo}</option>`;
+        });
+
+        if (valorActual) select.value = valorActual;
+    }
+
+    setupCreateIncidentForm() {
+        const form = document.getElementById('create-incident-form');
+        if (!form) return;
+
+        this.populateIncidentArticleSelect();
+
+        const btnCancel = document.getElementById('btn-cancel-incident');
+        if (btnCancel) {
+            btnCancel.addEventListener('click', () => {
+                form.reset();
+                this.switchSection('articles');
+            });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id_articulo = Number(document.getElementById('incident-article')?.value);
+            const descripcion = document.getElementById('incident-description')?.value.trim();
+            const prioridad = document.getElementById('incident-priority')?.value;
+
+            if (!id_articulo || !descripcion || !prioridad) {
+                alert('Por favor completa todos los campos.');
+                return;
+            }
+
+            try {
+                await this.incidencias.createIncidencia({ id_articulo, descripcion, prioridad });
+                form.reset();
+                alert('Incidencia creada con éxito.');
+                this.switchSection('incidents');
+            } catch (error) {
+                alert('Error al crear la incidencia: ' + error.message);
+            }
+        });
+    }
+
+    async renderIncidentsTable() {
         const tbody = document.getElementById('incidents-table-body');
         if (!tbody) return;
+
+        const incidencias = await this.incidencias.getIncidencias();
+        const gestionable = this.esPaginaDeGestion();
+
         tbody.innerHTML = '';
 
-        if (incidents.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #999;">No hay incidencias asignadas</td></tr>';
+        if (!Array.isArray(incidencias) || incidencias.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #999;">No hay incidencias registradas</td></tr>';
             return;
         }
 
-        incidents.forEach(incident => {
+        incidencias.forEach(inc => {
+            const codigo = `INC-${inc.id_incidencia}`;
+            const articulo = inc.articulo_descripcion || 'Sin artículo';
+            const badgeEstado = `<span class="badge ${claseBadgeEstado(inc.estado)}">${inc.estado || 'PENDIENTE'}</span>`;
+            const badgePrioridad = `<span class="badge ${claseBadgePrioridad(inc.prioridad)}">${inc.prioridad || 1}</span>`;
+
+            let accion = '<span style="color: #999;">—</span>';
+            if (gestionable) {
+                if (inc.estado === 'PENDIENTE' || inc.estado === 'Pendiente' || !inc.estado) {
+                    accion = `
+                        <button type="button" class="btn-finalize btn-tomar">Tomar</button>
+                        <button type="button" class="btn-finalize-incident" style="background-color: #dc3545; color: white; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer;">Finalizar</button>
+                    `;
+                } else if (inc.estado === 'EN PROCESO' || inc.estado === 'En Proceso') {
+                    accion = `
+                        <button type="button" class="btn-finalize-incident" style="background-color: #28a745; color: white; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer;">Finalizar</button>
+                    `;
+                }
+            }
+
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${incident.code}</td>
-                <td>${incident.articleCode}</td>
-                <td>${incident.priority}</td>
-                <td>${incident.status}</td>
-                <td>
-                    ${incident.status === 'Abierta' ?
-                    `<button class="btn-finalize" data-code="${incident.code}" style="padding: 0.5rem 1rem; background: #00a854; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">Finalizar</button>`
-                    :
-                    '<span style="color: #999;">Finalizada</span>'
-                    }
-                </td>
+                <td>${codigo}</td>
+                <td>${articulo}</td>
+                <td>${badgePrioridad}</td>
+                <td>${badgeEstado}</td>
+                <td>${accion}</td>
             `;
 
-            const btnFinalize = row.querySelector('.btn-finalize');
-            if (btnFinalize) {
-                btnFinalize.addEventListener('click', () => {
-                    this.manager.finalizeIncident(incident.code);
-                    this.renderIncidentsTable();
+            const btnTomar = row.querySelector('.btn-tomar');
+            if (btnTomar) {
+                btnTomar.addEventListener('click', () => this.cambiarEstadoIncidencia(inc.id_incidencia, 2)); // id_estado = 2 (En Proceso)
+            }
+
+            const btnFinalizar = row.querySelector('.btn-finalize-incident');
+            if (btnFinalizar) {
+                btnFinalizar.addEventListener('click', () => {
+                    const resolucion = prompt('Ingrese la descripción de la resolución (opcional):') || '';
+                    this.cambiarEstadoIncidencia(inc.id_incidencia, 3, resolucion); // id_estado = 3 (Resuelto / Finalizado)
                 });
             }
 
             tbody.appendChild(row);
         });
+    }
+
+    async cambiarEstadoIncidencia(id, id_estado, descripcion_resolucion = '') {
+        try {
+            const res = await fetch(`http://localhost:3000/api/incidencias/${id}/estado`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_estado, descripcion_resolucion })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Error al actualizar el estado');
+            }
+
+            await this.renderIncidentsTable();
+        } catch (error) {
+            alert('Error al actualizar la incidencia: ' + error.message);
+        }
     }
 
     // ========== MODALES: UTILIDADES ==========

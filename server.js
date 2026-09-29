@@ -6,11 +6,9 @@ const { Pool } = pkg;
 const app = express();
 const port = 3000;
 
-// Middlewares
-app.use(cors()); // Permite peticiones desde el frontend de Vite
+app.use(cors());
 app.use(express.json());
 
-// Conexión a PostgreSQL
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
@@ -19,20 +17,9 @@ const pool = new Pool({
   port: 5432,
 });
 
-// Ejemplo: Endpoint para consultar usuarios o incidencias
-app.get('/api/incidencias', async (req, res) => {
-  try {
-    // Cambia 'incidencias' por el nombre real de tu tabla
-    const result = await pool.query('SELECT * FROM incidencias');
-    res.json(result.rows);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.listen(port, () => {
-  console.log(`Servidor backend corriendo en http://localhost:${port}`);
-});
+// ==========================================
+// ARTÍCULOS
+// ==========================================
 
 app.get('/api/articulos', async (req, res) => {
     try {
@@ -59,7 +46,6 @@ app.get('/api/articulos', async (req, res) => {
     }
 });
 
-// POST: Registrar un nuevo artículo
 app.post('/api/articulos', async (req, res) => {
     try {
         const { id_categoria, descripcion, id_area } = req.body;
@@ -75,10 +61,6 @@ app.post('/api/articulos', async (req, res) => {
         console.error('Error en POST /api/articulos:', error);
         res.status(500).json({ error: 'Error al registrar el artículo' });
     }
-});
-
-app.listen(3000, () => {
-    console.log(`Servidor corriendo en http://localhost:3000`);
 });
 
 app.patch('/api/articulos/:id', async (req, res) => {
@@ -122,7 +104,6 @@ app.put('/api/articulos/:id', async (req, res) => {
             return res.status(404).json({ error: 'Artículo no encontrado' });
         }
 
-        // 200 OK con el artículo actualizado
         res.status(200).json(resultado.rows[0]);
     } catch (error) {
         console.error('Error en PUT /api/articulos/:id:', error);
@@ -146,10 +127,15 @@ app.get('/api/articulos/:id', async (req, res) => {
         res.status(500).json({ error: 'Error al consultar el artículo' });
     }
 });
+
+// ==========================================
+// ÁREAS Y CATEGORÍAS
+// ==========================================
+
 app.get('/api/areas', async (req, res) => {
     try {
         const resultado = await pool.query(
-            'SELECT * FROM areas WHERE activo = 1 ORDER BY descripcion ASC'
+            'SELECT id_area, descripcion FROM areas WHERE activo = 1 ORDER BY descripcion ASC'
         );
         res.status(200).json(resultado.rows);
     } catch (error) {
@@ -157,17 +143,7 @@ app.get('/api/areas', async (req, res) => {
         res.status(500).json({ error: 'Error al obtener las áreas' });
     }
 });
-app.get('/api/areas', async (req, res) => {
-    try {
-        const resultado = await pool.query(
-            'SELECT id_area, descripcion FROM areas WHERE activo = 1 ORDER BY id_area ASC'
-        );
-        res.status(200).json(resultado.rows);
-    } catch (error) {
-        console.error('Error en GET /api/areas:', error);
-        res.status(500).json({ error: 'Error interno al obtener las áreas' });
-    }
-});
+
 app.get('/api/categorias', async (req, res) => {
     try {
         const resultado = await pool.query(
@@ -179,6 +155,7 @@ app.get('/api/categorias', async (req, res) => {
         res.status(500).json({ error: 'Error al listar categorías' });
     }
 });
+
 app.get('/api/categorias/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -197,6 +174,7 @@ app.get('/api/categorias/:id', async (req, res) => {
         res.status(500).json({ error: 'Error al consultar la categoría' });
     }
 });
+
 app.post('/api/categorias', async (req, res) => {
     try {
         const { descripcion } = req.body;
@@ -212,7 +190,6 @@ app.post('/api/categorias', async (req, res) => {
         `;
         const resultado = await pool.query(query, [descripcion.trim()]);
 
-        // 201 Created cumpliendo con REST
         res.status(201).json(resultado.rows[0]);
     } catch (error) {
         console.error('Error en POST /api/categorias:', error);
@@ -268,4 +245,163 @@ app.put('/api/categorias/:id', async (req, res) => {
         console.error('Error en PUT /api/categorias/:id:', error);
         res.status(500).json({ error: 'Error interno al actualizar la categoría' });
     }
+});
+
+// ==========================================
+// INCIDENCIAS
+// ==========================================
+
+app.get('/api/incidencias', async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                i.id_incidencia,
+                i.id_articulo,
+                a.descripcion AS articulo_descripcion,
+                i.descripcion_pedido,
+                i.descripcion_resolucion,
+                i.prioridad,
+                e.descripcion AS estado,
+                i.creado AS fecha_creacion,
+                uc.nombres AS creado_por_nombre,
+                ua.nombres AS asignado_a_nombre
+            FROM incidencias i
+            LEFT JOIN articulos a ON i.id_articulo = a.id_articulo
+            LEFT JOIN estados e ON i.id_estado = e.id_estado
+            LEFT JOIN usuarios uc ON i.creado_por = uc.id_usuario
+            LEFT JOIN usuarios ua ON i.asignado_a = ua.id_usuario
+            ORDER BY i.creado DESC
+        `;
+        const resultado = await pool.query(query);
+        res.status(200).json(resultado.rows);
+    } catch (error) {
+        console.error('Error en GET /api/incidencias:', error);
+        res.status(500).json({ error: 'Error al obtener las incidencias' });
+    }
+});
+
+app.get('/api/incidencias/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const query = `
+            SELECT 
+                i.id_incidencia,
+                i.id_articulo,
+                a.descripcion AS articulo_descripcion,
+                i.descripcion_pedido,
+                i.descripcion_resolucion,
+                i.prioridad,
+                e.descripcion AS estado,
+                i.creado AS fecha_creacion,
+                uc.nombres AS creado_por_nombre,
+                ua.nombres AS asignado_a_nombre
+            FROM incidencias i
+            LEFT JOIN articulos a ON i.id_articulo = a.id_articulo
+            LEFT JOIN estados e ON i.id_estado = e.id_estado
+            LEFT JOIN usuarios uc ON i.creado_por = uc.id_usuario
+            LEFT JOIN usuarios ua ON i.asignado_a = ua.id_usuario
+            WHERE i.id_incidencia = $1
+        `;
+        const resultado = await pool.query(query, [id]);
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: 'Incidencia no encontrada' });
+        }
+
+        res.status(200).json(resultado.rows[0]);
+    } catch (error) {
+        console.error('Error en GET /api/incidencias/:id:', error);
+        res.status(500).json({ error: 'Error al consultar la incidencia' });
+    }
+});
+
+app.post('/api/incidencias', async (req, res) => {
+    try {
+        const { id_articulo, descripcion_pedido, prioridad, creado_por, asignado_a } = req.body;
+
+        if (!id_articulo || !descripcion_pedido || !descripcion_pedido.trim()) {
+            return res.status(400).json({ error: 'id_articulo y descripcion_pedido son obligatorios' });
+        }
+
+        const query = `
+            INSERT INTO incidencias (id_articulo, id_estado, creado_por, asignado_a, prioridad, descripcion_pedido, descripcion_resolucion)
+            VALUES ($1, 1, $2, $3, $4, $5, '')
+            RETURNING *
+        `;
+        const values = [
+            id_articulo,
+            creado_por || 1, 
+            asignado_a || 1, 
+            prioridad || 1, 
+            descripcion_pedido.trim()
+        ];
+
+        const resultado = await pool.query(query, values);
+        res.status(201).json(resultado.rows[0]);
+    } catch (error) {
+        console.error('Error en POST /api/incidencias:', error);
+        res.status(500).json({ error: 'Error al crear la incidencia' });
+    }
+});
+
+app.put('/api/incidencias/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { descripcion_pedido, prioridad } = req.body;
+
+        if (!descripcion_pedido || !descripcion_pedido.trim()) {
+            return res.status(400).json({ error: 'La descripción del pedido es obligatoria' });
+        }
+
+        const query = `
+            UPDATE incidencias
+            SET descripcion_pedido = $1,
+                prioridad = COALESCE($2, prioridad)
+            WHERE id_incidencia = $3
+            RETURNING *
+        `;
+        const resultado = await pool.query(query, [descripcion_pedido.trim(), prioridad || null, id]);
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: 'Incidencia no encontrada' });
+        }
+
+        res.status(200).json(resultado.rows[0]);
+    } catch (error) {
+        console.error('Error en PUT /api/incidencias/:id:', error);
+        res.status(500).json({ error: 'Error al actualizar la incidencia' });
+    }
+});
+
+app.patch('/api/incidencias/:id/estado', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { id_estado, descripcion_resolucion } = req.body;
+
+        if (!id_estado) {
+            return res.status(400).json({ error: 'id_estado es obligatorio' });
+        }
+
+        const query = `
+            UPDATE incidencias
+            SET id_estado = $1,
+                descripcion_resolucion = COALESCE($2, descripcion_resolucion)
+            WHERE id_incidencia = $3
+            RETURNING *
+        `;
+        const resultado = await pool.query(query, [id_estado, descripcion_resolucion || null, id]);
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: 'Incidencia no encontrada' });
+        }
+
+        res.status(200).json(resultado.rows[0]);
+    } catch (error) {
+        console.error('Error en PATCH /api/incidencias/:id/estado:', error);
+        res.status(500).json({ error: 'Error al cambiar el estado de la incidencia' });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Servidor backend corriendo en http://localhost:${port}`);
 });

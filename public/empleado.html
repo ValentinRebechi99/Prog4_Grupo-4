@@ -117,16 +117,16 @@
 								<tr>
 									<th>Código</th>
 									<th>Artículo</th>
-									<th>Estado</th>
 									<th>Prioridad</th>
+									<th>Estado</th>
 									<th>Acción</th>
 								</tr>
 							</thead>
-							<tbody>
+							<tbody id="incidents-table-body">
 								<!-- Las incidencias se llenarán dinámicamente -->
 							</tbody>
 						</table>
-						<div class="empty-state" id="incidents-empty">
+						<div class="empty-state" id="incidents-empty" style="display: none;">
 							<p>No hay incidencias registradas.</p>
 						</div>
 					</div>
@@ -181,6 +181,7 @@
     </div>
 </div>
 	<script src="../js/login.js"></script>
+	<script src="../js/incidencias.js"></script>
 	<script src="../js/employee.js"></script>
 </body>
 
