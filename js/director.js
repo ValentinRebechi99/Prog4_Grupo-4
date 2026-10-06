@@ -38,7 +38,8 @@ function configurarMenuLateral() {
 	const menuItems = document.querySelectorAll('.menu-item');
 
 	menuItems.forEach((item) => {
-		item.addEventListener('click', function () {
+		item.addEventListener('click', function (e) {
+			if (e) e.preventDefault();
 			const seccion = this.getAttribute('data-section');
 			cambiarSeccion(seccion);
 		});

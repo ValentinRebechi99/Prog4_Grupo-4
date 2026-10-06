@@ -19,11 +19,17 @@ class IncidenciasManager {
     }
 
 
-    async createIncidencia({ id_articulo, descripcion, prioridad }) {
+    async createIncidencia({ id_articulo, descripcion, descripcion_pedido, prioridad }) {
+        const desc = (descripcion_pedido || descripcion || '').trim();
         const res = await fetch(INCIDENCIAS_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id_articulo, descripcion, prioridad })
+            body: JSON.stringify({
+                id_articulo,
+                descripcion_pedido: desc,
+                descripcion: desc,
+                prioridad
+            })
         });
         if (!res.ok) {
             const err = await res.json();
@@ -33,11 +39,16 @@ class IncidenciasManager {
     }
 
 
-    async updateIncidencia(id, { descripcion, prioridad }) {
+    async updateIncidencia(id, { descripcion, descripcion_pedido, prioridad }) {
+        const desc = (descripcion_pedido || descripcion || '').trim();
         const res = await fetch(`${INCIDENCIAS_API_URL}/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ descripcion, prioridad })
+            body: JSON.stringify({
+                descripcion_pedido: desc,
+                descripcion: desc,
+                prioridad
+            })
         });
         if (!res.ok) {
             const err = await res.json();
@@ -75,7 +86,22 @@ function claseBadgePrioridad(prioridad) {
         'Crítica': 'badge-crítica',
         'Alta': 'badge-alta',
         'Media': 'badge-media',
-        'Baja': 'badge-baja'
+        'Baja': 'badge-baja',
+        1: 'badge-alta',
+        2: 'badge-media',
+        3: 'badge-baja'
     };
     return mapa[prioridad] || '';
+}
+
+function formatearPrioridad(prioridad) {
+    const mapa = {
+        1: 'Alta',
+        2: 'Media',
+        3: 'Baja',
+        '1': 'Alta',
+        '2': 'Media',
+        '3': 'Baja'
+    };
+    return mapa[prioridad] || prioridad || 'Media';
 }

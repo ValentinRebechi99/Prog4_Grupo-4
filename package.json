@@ -1,4 +1,9 @@
 {
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "vite"
+  },
   "devDependencies": {
     "vite": "^8.3.0"
   },

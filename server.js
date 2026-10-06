@@ -1,7 +1,12 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import pkg from 'pg';
 const { Pool } = pkg;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = 3000;
@@ -9,6 +14,13 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
+// Servir archivos estáticos del frontend (HTML, CSS, JS, imágenes)
+app.use(express.static(__dirname));
+
+/*
+Datos de Conexion a la base de datos
+Editar las credenciales de la base de datos segun tu instalacion
+*/
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
@@ -330,9 +342,9 @@ app.post('/api/incidencias', async (req, res) => {
         `;
         const values = [
             id_articulo,
-            creado_por || 1, 
-            asignado_a || 1, 
-            prioridad || 1, 
+            creado_por || 1,
+            asignado_a || 1,
+            prioridad || 1,
             descripcion_pedido.trim()
         ];
 

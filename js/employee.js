@@ -514,8 +514,16 @@ class EmployeeSystemsUI {
                 return;
             }
 
+            const mapaPrioridades = { 'Alta': 1, 'Media': 2, 'Baja': 3, 'Crítica': 1, 'Critica': 1 };
+            const prioridadNum = mapaPrioridades[prioridad] || Number(prioridad) || 2;
+
             try {
-                await this.incidencias.createIncidencia({ id_articulo, descripcion, prioridad });
+                await this.incidencias.createIncidencia({
+                    id_articulo,
+                    descripcion_pedido: descripcion,
+                    descripcion,
+                    prioridad: prioridadNum
+                });
                 form.reset();
                 alert('Incidencia creada con éxito.');
                 this.switchSection('incidents');
@@ -543,7 +551,8 @@ class EmployeeSystemsUI {
             const codigo = `INC-${inc.id_incidencia}`;
             const articulo = inc.articulo_descripcion || 'Sin artículo';
             const badgeEstado = `<span class="badge ${claseBadgeEstado(inc.estado)}">${inc.estado || 'PENDIENTE'}</span>`;
-            const badgePrioridad = `<span class="badge ${claseBadgePrioridad(inc.prioridad)}">${inc.prioridad || 1}</span>`;
+            const textoPrioridad = typeof formatearPrioridad === 'function' ? formatearPrioridad(inc.prioridad) : (inc.prioridad || 1);
+            const badgePrioridad = `<span class="badge ${claseBadgePrioridad(inc.prioridad)}">${textoPrioridad}</span>`;
 
             let accion = '<span style="color: #999;">—</span>';
             if (gestionable) {

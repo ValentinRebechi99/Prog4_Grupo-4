@@ -156,22 +156,28 @@ body {
 }
 
 .menu-item {
+	width: 100%;
+	box-sizing: border-box;
+	border: none;
+	border-left: 4px solid transparent;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 0;
 	padding: 1.5rem 1.5rem;
 	color: var(--white);
 	background: var(--primary);
 	cursor: pointer;
 	transition: var(--transition);
+	font-family: inherit;
 	font-weight: 700;
 	font-size: 1.1rem;
 	line-height: 1.3;
-	border-left: 4px solid transparent;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-	display: block;
+	text-align: left;
 	text-decoration: none;
 	user-select: none;
 	min-height: 70px;
 	display: flex;
 	align-items: center;
+	outline: none;
 }
 
 .menu-item:hover {

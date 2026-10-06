@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Empleado Área Sistemas</title>
 	<link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
 	<div class="employee-container">
 		<!-- Header -->
@@ -103,63 +105,63 @@
 
 	<!-- Modal para Nuevo Artículo -->
 	<div id="modal-new-article" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" data-modal="modal-new-article">&times;</span>
-        <h2>Nuevo Artículo</h2>
-        <form id="form-new-article" class="form-modal">
-            <div class="form-group">
-                <label for="new-article-category">Categoría:</label>
-                <select id="new-article-category" required></select>
-            </div>
-            
-            <div class="form-group">
-                <label for="new-article-description">Descripción:</label>
-                <textarea id="new-article-description" required></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="new-article-area">Área:</label>
-                <!-- ACÁ DEBE SER SELECT, NO INPUT -->
-                <select id="new-article-area" required></select>
-            </div>
-            
-            <div class="form-buttons">
-                <button type="submit" class="btn-submit">GUARDAR</button>
-                <button type="button" class="btn-cancel" data-modal="modal-new-article">CANCELAR</button>
-            </div>
-        </form>
-    </div>
-</div>
+		<div class="modal-content">
+			<span class="close-modal" data-modal="modal-new-article">&times;</span>
+			<h2>Nuevo Artículo</h2>
+			<form id="form-new-article" class="form-modal">
+				<div class="form-group">
+					<label for="new-article-category">Categoría:</label>
+					<select id="new-article-category" required></select>
+				</div>
+
+				<div class="form-group">
+					<label for="new-article-description">Descripción:</label>
+					<textarea id="new-article-description" required></textarea>
+				</div>
+
+				<div class="form-group">
+					<label for="new-article-area">Área:</label>
+
+					<select id="new-article-area" required></select>
+				</div>
+
+				<div class="form-buttons">
+					<button type="submit" class="btn-submit">GUARDAR</button>
+					<button type="button" class="btn-cancel" data-modal="modal-new-article">CANCELAR</button>
+				</div>
+			</form>
+		</div>
+	</div>
 	<!-- Modal para Editar Artículo -->
-<div id="modal-edit-article" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" data-modal="modal-edit-article">&times;</span>
-        <h2>Editar Artículo</h2>
-        <form id="form-edit-article" class="form-modal">
-            <input type="hidden" id="edit-article-id">
-            
-            <div class="form-group">
-                <label for="edit-article-category">Categoría:</label>
-                <select id="edit-article-category" required></select>
-            </div>
+	<div id="modal-edit-article" class="modal">
+		<div class="modal-content">
+			<span class="close-modal" data-modal="modal-edit-article">&times;</span>
+			<h2>Editar Artículo</h2>
+			<form id="form-edit-article" class="form-modal">
+				<input type="hidden" id="edit-article-id">
 
-            <div class="form-group">
-                <label for="edit-article-description">Descripción:</label>
-                <textarea id="edit-article-description" required></textarea>
-            </div>
+				<div class="form-group">
+					<label for="edit-article-category">Categoría:</label>
+					<select id="edit-article-category" required></select>
+				</div>
 
-            <div class="form-group">
-                <label for="edit-article-area">Área:</label>
-                <select id="edit-article-area" required></select>
-            </div>
+				<div class="form-group">
+					<label for="edit-article-description">Descripción:</label>
+					<textarea id="edit-article-description" required></textarea>
+				</div>
 
-            <div class="form-buttons">
-                <button type="submit" class="btn-submit">Guardar Cambios</button>
-                <button type="button" class="btn-cancel" data-modal="modal-edit-article">Cancelar</button>
-            </div>
-        </form>
-    </div>
-</div>
+				<div class="form-group">
+					<label for="edit-article-area">Área:</label>
+					<select id="edit-article-area" required></select>
+				</div>
+
+				<div class="form-buttons">
+					<button type="submit" class="btn-submit">Guardar Cambios</button>
+					<button type="button" class="btn-cancel" data-modal="modal-edit-article">Cancelar</button>
+				</div>
+			</form>
+		</div>
+	</div>
 	<!-- Modal para Nueva Categoría -->
 	<div id="modal-new-category" class="modal">
 		<div class="modal-content">
@@ -186,26 +188,27 @@
 		</div>
 	</div>
 	<!-- Modal para Editar Categoría -->
-    <div id="modal-edit-category" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" data-modal="modal-edit-category">&times;</span>
-            <h2>Editar Categoría</h2>
-            <form id="form-edit-category" class="form-modal">
-                <input type="hidden" id="edit-category-id">
-                
-                <div class="form-group">
-                    <label for="edit-category-description">Descripción:</label>
-                    <textarea id="edit-category-description" required></textarea>
-                </div>
+	<div id="modal-edit-category" class="modal">
+		<div class="modal-content">
+			<span class="close-modal" data-modal="modal-edit-category">&times;</span>
+			<h2>Editar Categoría</h2>
+			<form id="form-edit-category" class="form-modal">
+				<input type="hidden" id="edit-category-id">
 
-                <div class="form-buttons">
-                    <button type="submit" class="btn-submit">Guardar Cambios</button>
-                    <button type="button" class="btn-cancel" data-modal="modal-edit-category">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
+				<div class="form-group">
+					<label for="edit-category-description">Descripción:</label>
+					<textarea id="edit-category-description" required></textarea>
+				</div>
+
+				<div class="form-buttons">
+					<button type="submit" class="btn-submit">Guardar Cambios</button>
+					<button type="button" class="btn-cancel" data-modal="modal-edit-category">Cancelar</button>
+				</div>
+			</form>
+		</div>
+	</div>
 	<script src="../js/incidencias.js"></script>
 	<script src="../js/employee.js"></script>
 </body>
+
 </html>
