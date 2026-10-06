@@ -323,9 +323,45 @@ tbody tr:last-child td {
    BOTONES EN TABLA
    ==================================== */
 
-.btn-delete {
-	padding: 0.5rem 1rem;
+.btn-edit-article,
+.btn-edit-category,
+.btn-edit {
+	padding: 0.45rem 0.95rem;
 	font-size: 0.85rem;
+	font-family: inherit;
+	font-weight: 600;
+	color: var(--white);
+	background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: var(--transition);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 4px rgba(0, 132, 209, 0.2);
+	margin-right: 0.4rem;
+}
+
+.btn-edit-article:hover,
+.btn-edit-category:hover,
+.btn-edit:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 8px rgba(0, 132, 209, 0.3);
+}
+
+.btn-edit-article:active,
+.btn-edit-category:active,
+.btn-edit:active {
+	transform: translateY(0);
+}
+
+.btn-delete,
+.btn-delete-article,
+.btn-delete-category {
+	padding: 0.45rem 0.95rem;
+	font-size: 0.85rem;
+	font-family: inherit;
 	font-weight: 600;
 	color: var(--white);
 	background: var(--error);
@@ -333,15 +369,23 @@ tbody tr:last-child td {
 	border-radius: 6px;
 	cursor: pointer;
 	transition: var(--transition);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 4px rgba(211, 47, 47, 0.2);
 }
 
-.btn-delete:hover {
+.btn-delete:hover,
+.btn-delete-article:hover,
+.btn-delete-category:hover {
 	background: #c62828;
 	transform: translateY(-1px);
-	box-shadow: 0 4px 8px rgba(211, 47, 47, 0.2);
+	box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3);
 }
 
-.btn-delete:active {
+.btn-delete:active,
+.btn-delete-article:active,
+.btn-delete-category:active {
 	transform: translateY(0);
 }
 
@@ -723,7 +767,8 @@ select {
 	border: 1px solid var(--success);
 }
 
-.badge-cancelado {
+.badge-cancelado,
+.badge-cancelada {
 	background: rgba(117, 117, 117, 0.1);
 	color: var(--gray-600);
 	border: 1px solid var(--gray-600);

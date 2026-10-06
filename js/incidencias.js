@@ -72,13 +72,27 @@ class IncidenciasManager {
 }
 
 function claseBadgeEstado(estado) {
+    if (!estado) return 'badge-pendiente';
+    const est = String(estado).trim();
     const mapa = {
         'Pendiente': 'badge-pendiente',
+        'PENDIENTE': 'badge-pendiente',
         'En Proceso': 'badge-en-proceso',
+        'EN PROCESO': 'badge-en-proceso',
         'Resuelto': 'badge-resuelto',
-        'Cancelado': 'badge-cancelado'
+        'RESUELTO': 'badge-resuelto',
+        'Resuela': 'badge-resuelto',
+        'RESUELA': 'badge-resuelto',
+        'Cancelado': 'badge-cancelado',
+        'CANCELADO': 'badge-cancelado',
+        'Cancelada': 'badge-cancelado',
+        'CANCELADA': 'badge-cancelado',
+        1: 'badge-pendiente',
+        2: 'badge-en-proceso',
+        3: 'badge-resuelto',
+        4: 'badge-cancelado'
     };
-    return mapa[estado] || '';
+    return mapa[est] || mapa[estado] || '';
 }
 
 function claseBadgePrioridad(prioridad) {

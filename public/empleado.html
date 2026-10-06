@@ -44,9 +44,9 @@
 							<thead>
 								<tr>
 									<th>Código</th>
-									<th>Área / Categoría</th>
+									<th>Categoría</th>
 									<th>Descripción</th>
-									<th>Acciones</th>
+									<th>Área</th>
 								</tr>
 							</thead>
 							<tbody id="articles-table-body">
@@ -157,23 +157,26 @@
 		</div>
 	</div>
 	<!-- Modal Editar Artículo -->
-<div id="modal-edit-article" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span class="close-modal" data-modal="modal-edit-article">&times;</span>
-        <h2>Editar Artículo</h2>
-        <form id="form-edit-article">
-            <input type="hidden" id="edit-article-id">
-            
-            <label for="edit-article-description">Descripción</label>
-            <input type="text" id="edit-article-description" required>
+	<div id="modal-edit-article" class="modal" style="display: none;">
+		<div class="modal-content">
+			<span class="close-modal" data-modal="modal-edit-article">&times;</span>
+			<h2>Editar Artículo</h2>
+			<form id="form-edit-article">
+				<input type="hidden" id="edit-article-id">
 
-            <div class="modal-actions" style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
-                <button type="button" class="btn-cancel" data-modal="modal-edit-article">Cancelar</button>
-                <button type="submit" class="btn-primary" style="background: #00a854; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Guardar Cambios</button>
-            </div>
-        </form>
-    </div>
-</div>
+				<label for="edit-article-description">Descripción</label>
+				<input type="text" id="edit-article-description" required>
+
+				<div class="modal-actions"
+					style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
+					<button type="button" class="btn-cancel" data-modal="modal-edit-article">Cancelar</button>
+					<button type="submit" class="btn-primary"
+						style="background: #00a854; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Guardar
+						Cambios</button>
+				</div>
+			</form>
+		</div>
+	</div>
 	<script src="../js/login.js"></script>
 	<script src="../js/incidencias.js"></script>
 	<script src="../js/employee.js"></script>

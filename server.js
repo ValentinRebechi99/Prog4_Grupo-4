@@ -274,6 +274,7 @@ app.get('/api/incidencias', async (req, res) => {
                 i.descripcion_resolucion,
                 i.prioridad,
                 e.descripcion AS estado,
+                i.id_estado,
                 i.creado AS fecha_creacion,
                 uc.nombres AS creado_por_nombre,
                 ua.nombres AS asignado_a_nombre
@@ -392,6 +393,23 @@ app.patch('/api/incidencias/:id/estado', async (req, res) => {
 
         if (!id_estado) {
             return res.status(400).json({ error: 'id_estado es obligatorio' });
+        }
+
+        // Consultar el estado actual de la incidencia
+        const checkQuery = `SELECT id_incidencia, id_estado FROM incidencias WHERE id_incidencia = $1`;
+        const checkRes = await pool.query(checkQuery, [id]);
+
+        if (checkRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Incidencia no encontrada' });
+        }
+
+        const incidenciaActual = checkRes.rows[0];
+
+        // Regla: si se intenta cancelar (id_estado = 4), solo se permite si el estado actual es Pendiente (id_estado = 1)
+        if (Number(id_estado) === 4 && Number(incidenciaActual.id_estado) !== 1) {
+            return res.status(400).json({ 
+                error: 'Solo se puede cancelar una incidencia cuando su estado es Pendiente' 
+            });
         }
 
         const query = `

@@ -190,41 +190,56 @@ class EmployeeSystemsUI {
         const tbody = document.getElementById('articles-table-body');
         if (!tbody) return;
 
+        const table = tbody.closest('table');
+        const headers = table ? table.querySelectorAll('th') : [];
+        const tieneColumnaAcciones = Array.from(headers).some(th => th.textContent.trim().toLowerCase().includes('accion'));
+        const mostrarAcciones = this.esPaginaDeGestion() && tieneColumnaAcciones;
+
         tbody.innerHTML = '';
 
         if (!Array.isArray(articles) || articles.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No hay artículos registrados</td></tr>';
+            const colspan = mostrarAcciones ? 5 : 4;
+            tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align: center;">No hay artículos registrados</td></tr>`;
             return;
         }
 
         articles.forEach(art => {
             const row = document.createElement('tr');
+            let accionesHtml = '';
+            if (mostrarAcciones) {
+                accionesHtml = `
+                    <td>
+                        <button type="button" class="btn-edit-article" data-id="${art.id_articulo}">Editar</button>
+                        <button type="button" class="btn-delete-article" data-id="${art.id_articulo}">Baja</button>
+                    </td>
+                `;
+            }
+
             row.innerHTML = `
                 <td>${art.id_articulo}</td>
                 <td>${art.categoria_nombre || 'Sin categoría'}</td>
                 <td>${art.descripcion_articulo}</td>
                 <td>${art.area_nombre || 'Sin área'}</td>
-                <td>
-                    <button type="button" class="btn-edit-article" data-id="${art.id_articulo}">Editar</button>
-                    <button type="button" class="btn-delete-article" data-id="${art.id_articulo}">Baja</button>
-                </td>
+                ${accionesHtml}
             `;
 
-            const btnEdit = row.querySelector('.btn-edit-article');
-            if (btnEdit) {
-                btnEdit.addEventListener('click', () => {
-                    this.openEditArticleModal(art.id_articulo);
-                });
-            }
+            if (mostrarAcciones) {
+                const btnEdit = row.querySelector('.btn-edit-article');
+                if (btnEdit) {
+                    btnEdit.addEventListener('click', () => {
+                        this.openEditArticleModal(art.id_articulo);
+                    });
+                }
 
-            const btnDelete = row.querySelector('.btn-delete-article');
-            if (btnDelete) {
-                btnDelete.addEventListener('click', async () => {
-                    if (confirm(`¿Dar de baja el artículo "${art.descripcion_articulo}"?`)) {
-                        await this.manager.bajaLogicaArticulo(art.id_articulo);
-                        await this.renderArticlesTable();
-                    }
-                });
+                const btnDelete = row.querySelector('.btn-delete-article');
+                if (btnDelete) {
+                    btnDelete.addEventListener('click', async () => {
+                        if (confirm(`¿Dar de baja el artículo "${art.descripcion_articulo}"?`)) {
+                            await this.manager.bajaLogicaArticulo(art.id_articulo);
+                            await this.renderArticlesTable();
+                        }
+                    });
+                }
             }
 
             tbody.appendChild(row);
@@ -400,8 +415,8 @@ class EmployeeSystemsUI {
                 <td>${cat.descripcion}</td>
                 <td>${cat.activo === 1 ? 'Activo' : 'Inactivo'}</td>
                 <td>
-                    <button type="button" class="btn-edit-category" style="padding: 0.35rem 0.6rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Editar</button>
-                    <button type="button" class="btn-delete-category" style="padding: 0.35rem 0.6rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Baja</button>
+                    <button type="button" class="btn-edit-category" data-id="${cat.id_categoria}">Editar</button>
+                    <button type="button" class="btn-delete-category" data-id="${cat.id_categoria}">Baja</button>
                 </td>
             `;
 
@@ -555,15 +570,25 @@ class EmployeeSystemsUI {
             const badgePrioridad = `<span class="badge ${claseBadgePrioridad(inc.prioridad)}">${textoPrioridad}</span>`;
 
             let accion = '<span style="color: #999;">—</span>';
+            const estadoTexto = (inc.estado || '').trim().toLowerCase();
+            const esPendiente = inc.id_estado === 1 || estadoTexto === 'pendiente' || !inc.estado;
+
             if (gestionable) {
-                if (inc.estado === 'PENDIENTE' || inc.estado === 'Pendiente' || !inc.estado) {
-                    accion = `
-                        <button type="button" class="btn-finalize btn-tomar">Tomar</button>
-                        <button type="button" class="btn-finalize-incident" style="background-color: #dc3545; color: white; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer;">Finalizar</button>
-                    `;
-                } else if (inc.estado === 'EN PROCESO' || inc.estado === 'En Proceso') {
+                if (esPendiente) {
                     accion = `
                         <button type="button" class="btn-finalize-incident" style="background-color: #28a745; color: white; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer;">Finalizar</button>
+                        <button type="button" class="btn-action btn-cancel-incident btn-cancelar-incidencia">Cancelar</button>
+                    `;
+                } else if (estadoTexto === 'en proceso') {
+                    accion = `
+                        <button type="button" class="btn-finalize-incident" style="background-color: #28a745; color: white; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer;">Finalizar</button>
+                    `;
+                }
+            } else {
+                // Empleado Municipal: Únicamente permite cancelar si figura Pendiente
+                if (esPendiente) {
+                    accion = `
+                        <button type="button" class="btn-action btn-cancel-incident btn-cancelar-incidencia">Cancelar</button>
                     `;
                 }
             }
@@ -577,16 +602,21 @@ class EmployeeSystemsUI {
                 <td>${accion}</td>
             `;
 
-            const btnTomar = row.querySelector('.btn-tomar');
-            if (btnTomar) {
-                btnTomar.addEventListener('click', () => this.cambiarEstadoIncidencia(inc.id_incidencia, 2)); // id_estado = 2 (En Proceso)
-            }
-
             const btnFinalizar = row.querySelector('.btn-finalize-incident');
             if (btnFinalizar) {
                 btnFinalizar.addEventListener('click', () => {
                     const resolucion = prompt('Ingrese la descripción de la resolución (opcional):') || '';
                     this.cambiarEstadoIncidencia(inc.id_incidencia, 3, resolucion); // id_estado = 3 (Resuelto / Finalizado)
+                });
+            }
+
+            const btnCancelar = row.querySelector('.btn-cancelar-incidencia');
+            if (btnCancelar) {
+                btnCancelar.addEventListener('click', async () => {
+                    const confirmar = confirm(`¿Estás seguro de que deseas cancelar la incidencia ${codigo}?`);
+                    if (confirmar) {
+                        await this.cambiarEstadoIncidencia(inc.id_incidencia, 4, 'Cancelada por el usuario'); // id_estado = 4 (Cancelada)
+                    }
                 });
             }
 
