@@ -2,8 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import pkg from 'pg';
-const { Pool } = pkg;
+import 'dotenv/config';
+import { pool } from './config/bd.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,17 +17,6 @@ app.use(express.json());
 // Servir archivos estáticos del frontend (HTML, CSS, JS, imágenes)
 app.use(express.static(__dirname));
 
-/*
-Datos de Conexion a la base de datos
-Editar las credenciales de la base de datos segun tu instalacion
-*/
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'incidencias',
-  password: '1234',
-  port: 5432,
-});
 
 // ==========================================
 // ARTÍCULOS

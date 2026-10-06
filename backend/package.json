@@ -2,13 +2,11 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "vite"
-  },
-  "devDependencies": {
-    "vite": "^8.3.0"
+    "dev": "node --watch server.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
+    "dotenv": "^18.0.5",
     "express": "^5.2.1",
     "pg": "^8.23.0"
   }
