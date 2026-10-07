@@ -15,7 +15,29 @@ app.use(cors());
 app.use(express.json());
 
 // Servir archivos estáticos del frontend (HTML, CSS, JS, imágenes)
-app.use(express.static(__dirname));
+const frontendPath = path.join(__dirname, '../frontend');
+const publicPath = path.join(frontendPath, 'public');
+
+app.use(express.static(frontendPath));
+app.use(express.static(publicPath));
+app.use('/public', express.static(publicPath));
+
+// Rutas de las vistas en el puerto 3000
+app.get(['/', '/index.html', '/login'], (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
+app.get(['/director', '/director.html'], (req, res) => {
+    res.sendFile(path.join(publicPath, 'director.html'));
+});
+
+app.get(['/empleado', '/empleado.html'], (req, res) => {
+    res.sendFile(path.join(publicPath, 'empleado.html'));
+});
+
+app.get(['/empleado-sistemas', '/empleadosistemas', '/empleadoSistemas', '/empleadoSistemas.html'], (req, res) => {
+    res.sendFile(path.join(publicPath, 'empleadoSistemas.html'));
+});
 
 
 // ==========================================
@@ -396,8 +418,8 @@ app.patch('/api/incidencias/:id/estado', async (req, res) => {
 
         // Regla: si se intenta cancelar (id_estado = 4), solo se permite si el estado actual es Pendiente (id_estado = 1)
         if (Number(id_estado) === 4 && Number(incidenciaActual.id_estado) !== 1) {
-            return res.status(400).json({ 
-                error: 'Solo se puede cancelar una incidencia cuando su estado es Pendiente' 
+            return res.status(400).json({
+                error: 'Solo se puede cancelar una incidencia cuando su estado es Pendiente'
             });
         }
 
