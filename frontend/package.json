@@ -2,16 +2,16 @@
   "name": "frontend",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
+  "license": "ISC",
   "type": "module",
+  "main": "index.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
-    "vite": "^8.3.3"
+    "vite": "^8.3.4"
   }
 }
