@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Panel Director - Reportes</title>
+	<link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+	<div class="employee-container">
+		<!-- HEADER -->
+		<header class="employee-header">
+			<div class="header-left">
+				<h1 class="header-title">Director Área Sistemas</h1>
+				<a href="../../../index.html" class="logout-btn">Salir</a>
+			</div>
+			<div class="header-right">
+				<img src="../../imagenes/logo.jpg" alt="Logo" />
+			</div>
+		</header>
+
+		<!-- CONTENIDO PRINCIPAL CON MENÚ -->
+		<div class="main-content">
+			<!-- MENÚ LATERAL -->
+			<aside class="sidebar-menu">
+				<a href="director-dashboard.html" class="menu-item">Inicio</a>
+				<a href="director-incidencias.html" class="menu-item">Incidencias</a>
+				<a href="director-reportes.html" class="menu-item active">Reportes</a>
+			</aside>
+
+			<!-- ÁREA DE CONTENIDO -->
+			<main class="content-area">
+				<!-- SECCIÓN: REPORTES -->
+				<section id="reportes" class="content-section active">
+					<h2>Reportes de Incidencias</h2>
+
+					<!-- FILTROS -->
+					<div class="filters-container">
+						<div class="filter-group">
+							<label for="filter-codigo">Código:</label>
+							<input type="text" id="filter-codigo" placeholder="Buscar por código..." />
+						</div>
+						<div class="filter-group">
+							<label for="filter-fecha">Fecha:</label>
+							<input type="date" id="filter-fecha" />
+						</div>
+						<div class="filter-group">
+							<label for="filter-articulo">Artículo:</label>
+							<input type="text" id="filter-articulo" placeholder="Buscar por artículo..." />
+						</div>
+						<div class="filter-group">
+							<label for="filter-prioridad">Prioridad:</label>
+							<select id="filter-prioridad">
+								<option value="">Todas</option>
+								<option value="Crítica">Crítica</option>
+								<option value="Alta">Alta</option>
+								<option value="Media">Media</option>
+								<option value="Baja">Baja</option>
+							</select>
+						</div>
+						<div class="filter-group">
+							<label for="filter-estado">Estado:</label>
+							<select id="filter-estado">
+								<option value="">Todos</option>
+								<option value="Pendiente">Pendiente</option>
+								<option value="En Proceso">En Proceso</option>
+								<option value="Resuelto">Resuelto</option>
+								<option value="Cancelado">Cancelado</option>
+							</select>
+						</div>
+						<div class="filter-group">
+							<label for="filter-empleado">Empleado:</label>
+							<input type="text" id="filter-empleado" placeholder="Buscar por empleado..." />
+						</div>
+						<button class="btn-filter" id="btn-limpiar-filtros">
+							Limpiar Filtros
+						</button>
+					</div>
+
+					<!-- TABLA DE REPORTES -->
+					<div class="table-wrapper">
+						<table id="reportes-table">
+							<thead>
+								<tr>
+									<th>Código</th>
+									<th>Fecha</th>
+									<th>Artículo</th>
+									<th>Prioridad</th>
+									<th>Estado</th>
+									<th>Empleado Asignado</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- Los datos se cargarán aquí dinámicamente -->
+							</tbody>
+						</table>
+					</div>
+				</section>
+			</main>
+		</div>
+	</div>
+
+	<script src="./director-reportes.js"></script>
+</body>
+
+</html>
+

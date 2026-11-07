@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Empleado Municipal</title>
+	<title>Empleado Municipal - Incidencias</title>
 	<link rel="stylesheet" href="../css/style.css">
 </head>
 
@@ -14,10 +14,10 @@
 		<header class="employee-header">
 			<div class="header-left">
 				<h1 class="header-title">Empleado Municipal</h1>
-				<a href="../index.html" class="logout-btn">Salir</a>
+				<a href="../../../index.html" class="logout-btn">Salir</a>
 			</div>
 			<div class="header-right">
-				<img src="../imagenes/logo.jpg" alt="Logo Municipal">
+				<img src="../../imagenes/logo.jpg" alt="Logo Municipal">
 			</div>
 		</header>
 
@@ -25,39 +25,13 @@
 		<div class="main-content">
 			<!-- MENÚ LATERAL -->
 			<aside class="sidebar-menu">
-				<a href="#" class="menu-item active" data-section="articles">Listar artículos</a>
-				<a href="#" class="menu-item" data-section="create-incident">Crear una Incidencia</a>
-				<a href="#" class="menu-item" data-section="incidents">Listado de incidencias</a>
+				<a href="municipal-articulos.html" class="menu-item">Listar artículos</a>
+				<a href="#create-incident" class="menu-item" id="menu-create-incident">Crear una Incidencia</a>
+				<a href="#incidents" class="menu-item active" id="menu-incidents">Listado de incidencias</a>
 			</aside>
 
 			<!-- ÁREA DE CONTENIDO -->
 			<div class="content-area">
-				<!-- SECCIÓN: LISTAR ARTÍCULOS -->
-				<section class="content-section articles-section active" id="articles">
-					<div class="section-header">
-						<h2>Artículos</h2>
-					</div>
-
-					<div class="table-wrapper">
-						<table id="articles-table">
-							<thead>
-								<tr>
-									<th>Código</th>
-									<th>Categoría</th>
-									<th>Descripción</th>
-									<th>Área</th>
-								</tr>
-							</thead>
-							<tbody id="articles-table-body">
-								<!-- Las filas se insertarán dinámicamente desde JavaScript -->
-							</tbody>
-						</table>
-						<div class="empty-state" id="articles-empty" style="display: none;">
-							<p>No hay artículos registrados. Crea uno nuevo para comenzar.</p>
-						</div>
-					</div>
-				</section>
-
 				<!-- SECCIÓN: CREAR INCIDENCIA -->
 				<section class="content-section create-incident-section" id="create-incident">
 					<h2>Crear una Incidencia</h2>
@@ -76,8 +50,7 @@
 
 							<div class="form-group">
 								<label for="incident-description">Descripción</label>
-								<textarea id="incident-description" placeholder="Describe la incidencia..."
-									required></textarea>
+								<textarea id="incident-description" placeholder="Describe la incidencia..." required></textarea>
 							</div>
 
 							<div class="form-group">
@@ -101,7 +74,7 @@
 				</section>
 
 				<!-- SECCIÓN: LISTADO DE INCIDENCIAS -->
-				<section class="content-section incidents-section" id="incidents">
+				<section class="content-section incidents-section active" id="incidents">
 					<h2>Listado de Incidencias</h2>
 
 					<div class="table-wrapper">
@@ -119,66 +92,13 @@
 								<!-- Las incidencias se llenarán dinámicamente -->
 							</tbody>
 						</table>
-						<div class="empty-state" id="incidents-empty" style="display: none;">
-							<p>No hay incidencias registradas.</p>
-						</div>
 					</div>
 				</section>
 			</div>
 		</div>
 	</div>
 
-	<!-- MODAL: NUEVO ARTÍCULO -->
-	<div class="modal" id="modal-new-article">
-		<div class="modal-content">
-			<div class="modal-header">Nuevo Artículo</div>
-
-			<div id="modal-message" class="message"></div>
-
-			<form id="new-article-form">
-				<div class="form-group">
-					<label for="article-type">Tipo</label>
-					<input type="text" id="article-type" placeholder="Ej: Computadora, Escritorio, etc." required>
-				</div>
-
-				<div class="form-group">
-					<label for="article-description">Descripción</label>
-					<textarea id="article-description" placeholder="Describe el artículo..." required></textarea>
-				</div>
-
-				<div class="form-buttons">
-					<button type="button" class="btn-cancel" id="btn-cancel-article">
-						Cancelar
-					</button>
-					<button type="submit" class="btn-submit">Guardar Artículo</button>
-				</div>
-			</form>
-		</div>
-	</div>
-	<!-- Modal Editar Artículo -->
-	<div id="modal-edit-article" class="modal" style="display: none;">
-		<div class="modal-content">
-			<span class="close-modal" data-modal="modal-edit-article">&times;</span>
-			<h2>Editar Artículo</h2>
-			<form id="form-edit-article">
-				<input type="hidden" id="edit-article-id">
-
-				<label for="edit-article-description">Descripción</label>
-				<input type="text" id="edit-article-description" required>
-
-				<div class="modal-actions"
-					style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
-					<button type="button" class="btn-cancel" data-modal="modal-edit-article">Cancelar</button>
-					<button type="submit" class="btn-primary"
-						style="background: #00a854; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Guardar
-						Cambios</button>
-				</div>
-			</form>
-		</div>
-	</div>
-	<script src="../js/login.js"></script>
-	<script src="../js/incidencias.js"></script>
-	<script src="../js/employee.js"></script>
+	<script src="./municipal-incidencias.js"></script>
 </body>
 
 </html>

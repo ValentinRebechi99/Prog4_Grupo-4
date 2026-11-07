@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Empleado Área Sistemas - Categorías</title>
+	<link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+	<div class="employee-container">
+		<!-- Header -->
+		<header class="employee-header">
+			<div class="header-left">
+				<h1 class="header-title">Empleado Área Sistemas</h1>
+				<a href="../../../index.html" class="logout-btn">Salir</a>
+			</div>
+			<div class="header-right">
+				<img src="../../imagenes/logo.jpg" alt="Logo">
+			</div>
+		</header>
+
+		<!-- Main Content with Sidebar -->
+		<div class="main-content">
+			<!-- Sidebar Menu -->
+			<aside class="sidebar-menu">
+				<a href="sistemas-incidencias.html" class="menu-item">Incidencias</a>
+				<a href="sistemas-articulos.html" class="menu-item">Artículos</a>
+				<a href="sistemas-categorias.html" class="menu-item active">Categorías</a>
+			</aside>
+
+			<!-- Content Area -->
+			<div class="content-area">
+				<!-- Categorías Section -->
+				<section id="categories" class="content-section categories-section active">
+					<div class="section-header">
+						<h2>Categorías</h2>
+						<button class="btn-new" id="btn-new-category">+ Nueva Categoría</button>
+					</div>
+					<div class="table-wrapper">
+						<table>
+							<thead>
+								<tr>
+									<th>Código</th>
+									<th>Descripción</th>
+									<th>Estado</th>
+									<th>Acciones</th>
+								</tr>
+							</thead>
+							<tbody id="categories-table-body">
+								<!-- Filas dinámicas -->
+							</tbody>
+						</table>
+					</div>
+				</section>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal para Nueva Categoría -->
+	<div id="modal-new-category" class="modal">
+		<div class="modal-content">
+			<span class="close-modal" data-modal="modal-new-category">&times;</span>
+			<h2>Nueva Categoría</h2>
+			<form id="form-new-category" class="form-modal">
+				<div class="form-group">
+					<label for="category-description">Descripción:</label>
+					<textarea id="category-description" required></textarea>
+				</div>
+				<div class="form-group">
+					<label for="category-status">Estado:</label>
+					<select id="category-status" required>
+						<option value="">-- Seleccionar --</option>
+						<option value="Activo" selected>Activo</option>
+						<option value="Inactivo">Inactivo</option>
+					</select>
+				</div>
+				<div class="form-buttons">
+					<button type="submit" class="btn-submit">Guardar</button>
+					<button type="button" class="btn-cancel" data-modal="modal-new-category">Cancelar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Modal para Editar Categoría -->
+	<div id="modal-edit-category" class="modal">
+		<div class="modal-content">
+			<span class="close-modal" data-modal="modal-edit-category">&times;</span>
+			<h2>Editar Categoría</h2>
+			<form id="form-edit-category" class="form-modal">
+				<input type="hidden" id="edit-category-id">
+
+				<div class="form-group">
+					<label for="edit-category-description">Descripción:</label>
+					<textarea id="edit-category-description" required></textarea>
+				</div>
+
+				<div class="form-buttons">
+					<button type="submit" class="btn-submit">Guardar Cambios</button>
+					<button type="button" class="btn-cancel" data-modal="modal-edit-category">Cancelar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./sistemas-categorias.js"></script>
+</body>
+
+</html>
+

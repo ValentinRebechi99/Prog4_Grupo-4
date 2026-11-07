@@ -97,13 +97,22 @@ document.addEventListener('DOMContentLoaded', () => {
 			// Simular llamada al servidor
 			await new Promise((resolve) => setTimeout(resolve, 1500));
 
-			// Aquí iría la lógica real de autenticación
+			// Redirección según rol/usuario
 			showMessage('¡Sesión iniciada correctamente!', 'success');
 
-			// Simular redirección (comentado para demostración)
-			// setTimeout(() => {
-			//     window.location.href = '/dashboard';
-			// }, 1000);
+			let destino = 'src/pages/empleado-sistemas/sistemas-incidencias.html';
+			const emailLower = email.toLowerCase();
+			if (emailLower.includes('director')) {
+				destino = 'src/pages/director/director-dashboard.html';
+			} else if (emailLower.includes('sistemas')) {
+				destino = 'src/pages/empleado-sistemas/sistemas-incidencias.html';
+			} else if (emailLower.includes('municipal') || emailLower.includes('empleado')) {
+				destino = 'src/pages/empleado-municipal/municipal-incidencias.html';
+			}
+
+			setTimeout(() => {
+				window.location.href = destino;
+			}, 800);
 		} catch (error) {
 			showMessage('Error al iniciar sesión. Por favor, intenta nuevamente.');
 		} finally {

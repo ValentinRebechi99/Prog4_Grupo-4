@@ -9,34 +9,62 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
 // Servir archivos estáticos del frontend (HTML, CSS, JS, imágenes)
 const frontendPath = path.join(__dirname, '../frontend');
-const publicPath = path.join(frontendPath, 'public');
+const pagesPath = path.join(frontendPath, 'src/pages');
+const reacomodarJsPath = path.join(__dirname, '../Reacomodar código/js');
 
+// Servir archivos estáticos del frontend
 app.use(express.static(frontendPath));
-app.use(express.static(publicPath));
-app.use('/public', express.static(publicPath));
+app.use('/src', express.static(path.join(frontendPath, 'src')));
+app.use('/css', express.static(path.join(pagesPath, 'css')));
+app.use('/imagenes', express.static(path.join(frontendPath, 'src/imagenes')));
+app.use('/js', express.static(frontendPath));
+app.use('/js', express.static(reacomodarJsPath));
 
 // Rutas de las vistas en el puerto 3000
 app.get(['/', '/index.html', '/login'], (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
-app.get(['/director', '/director.html'], (req, res) => {
-    res.sendFile(path.join(publicPath, 'director.html'));
+// Director
+app.get(['/director', '/director.html', '/director-dashboard', '/director-dashboard.html'], (req, res) => {
+    res.sendFile(path.join(pagesPath, 'director/director-dashboard.html'));
 });
 
-app.get(['/empleado', '/empleado.html'], (req, res) => {
-    res.sendFile(path.join(publicPath, 'empleado.html'));
+app.get(['/director-incidencias', '/director-incidencias.html'], (req, res) => {
+    res.sendFile(path.join(pagesPath, 'director/director-incidencias.html'));
 });
 
-app.get(['/empleado-sistemas', '/empleadosistemas', '/empleadoSistemas', '/empleadoSistemas.html'], (req, res) => {
-    res.sendFile(path.join(publicPath, 'empleadoSistemas.html'));
+app.get(['/director-reportes', '/director-reportes.html'], (req, res) => {
+    res.sendFile(path.join(pagesPath, 'director/director-reportes.html'));
+});
+
+// Empleado Municipal
+app.get(['/empleado', '/empleado.html', '/municipal', '/municipal-incidencias', '/municipal-incidencias.html'], (req, res) => {
+    res.sendFile(path.join(pagesPath, 'empleado-municipal/municipal-incidencias.html'));
+});
+
+app.get(['/municipal-articulos', '/municipal-articulos.html'], (req, res) => {
+    res.sendFile(path.join(pagesPath, 'empleado-municipal/municipal-articulos.html'));
+});
+
+// Empleado Sistemas
+app.get(['/empleado-sistemas', '/empleadosistemas', '/empleadoSistemas', '/empleadoSistemas.html', '/sistemas-incidencias', '/sistemas-incidencias.html'], (req, res) => {
+    res.sendFile(path.join(pagesPath, 'empleado-sistemas/sistemas-incidencias.html'));
+});
+
+app.get(['/sistemas-articulos', '/sistemas-articulos.html'], (req, res) => {
+    res.sendFile(path.join(pagesPath, 'empleado-sistemas/sistemas-articulos.html'));
+});
+
+app.get(['/sistemas-categorias', '/sistemas-categorias.html'], (req, res) => {
+    res.sendFile(path.join(pagesPath, 'empleado-sistemas/sistemas-categorias.html'));
 });
 
 

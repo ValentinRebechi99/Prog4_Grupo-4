@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Empleado Área Sistemas</title>
+	<title>Empleado Área Sistemas - Incidencias</title>
 	<link rel="stylesheet" href="../css/style.css">
 </head>
 
@@ -14,10 +14,10 @@
 		<header class="employee-header">
 			<div class="header-left">
 				<h1 class="header-title">Empleado Área Sistemas</h1>
-				<a href="../index.html" class="logout-btn">Salir</a>
+				<a href="../../../index.html" class="logout-btn">Salir</a>
 			</div>
 			<div class="header-right">
-				<img src="../imagenes/logo.jpg" alt="Logo">
+				<img src="../../imagenes/logo.jpg" alt="Logo">
 			</div>
 		</header>
 
@@ -25,9 +25,9 @@
 		<div class="main-content">
 			<!-- Sidebar Menu -->
 			<aside class="sidebar-menu">
-				<a href="#" class="menu-item active" data-section="incidents">Incidencias</a>
-				<a href="#" class="menu-item" data-section="articles">Artículos</a>
-				<a href="#" class="menu-item" data-section="categories">Categorías</a>
+				<a href="sistemas-incidencias.html" class="menu-item active">Incidencias</a>
+				<a href="sistemas-articulos.html" class="menu-item">Artículos</a>
+				<a href="sistemas-categorias.html" class="menu-item">Categorías</a>
 			</aside>
 
 			<!-- Content Area -->
@@ -52,163 +52,11 @@
 						</table>
 					</div>
 				</section>
-
-				<!-- Artículos Section -->
-				<section id="articles" class="content-section articles-section">
-					<div class="section-header">
-						<h2>Artículos</h2>
-						<button class="btn-new" id="btn-new-article">+ Nuevo Artículo</button>
-					</div>
-					<div class="table-wrapper">
-						<table>
-							<thead>
-								<tr>
-									<th>Código</th>
-									<th>Tipo</th>
-									<th>Descripción</th>
-									<th>Área</th>
-									<th>Acciones</th>
-								</tr>
-							</thead>
-							<tbody id="articles-table-body">
-								<!-- Filas dinámicas -->
-							</tbody>
-						</table>
-					</div>
-				</section>
-
-				<!-- Categorías Section -->
-				<section id="categories" class="content-section categories-section">
-					<div class="section-header">
-						<h2>Categorías</h2>
-						<button class="btn-new" id="btn-new-category">+ Nueva Categoría</button>
-					</div>
-					<div class="table-wrapper">
-						<table>
-							<thead>
-								<tr>
-									<th>Código</th>
-									<th>Descripción</th>
-									<th>Estado</th>
-									<th>Acciones</th>
-								</tr>
-							</thead>
-							<tbody id="categories-table-body">
-								<!-- Filas dinámicas -->
-							</tbody>
-						</table>
-					</div>
-				</section>
 			</div>
 		</div>
 	</div>
 
-	<!-- Modal para Nuevo Artículo -->
-	<div id="modal-new-article" class="modal">
-		<div class="modal-content">
-			<span class="close-modal" data-modal="modal-new-article">&times;</span>
-			<h2>Nuevo Artículo</h2>
-			<form id="form-new-article" class="form-modal">
-				<div class="form-group">
-					<label for="new-article-category">Categoría:</label>
-					<select id="new-article-category" required></select>
-				</div>
-
-				<div class="form-group">
-					<label for="new-article-description">Descripción:</label>
-					<textarea id="new-article-description" required></textarea>
-				</div>
-
-				<div class="form-group">
-					<label for="new-article-area">Área:</label>
-
-					<select id="new-article-area" required></select>
-				</div>
-
-				<div class="form-buttons">
-					<button type="submit" class="btn-submit">GUARDAR</button>
-					<button type="button" class="btn-cancel" data-modal="modal-new-article">CANCELAR</button>
-				</div>
-			</form>
-		</div>
-	</div>
-	<!-- Modal para Editar Artículo -->
-	<div id="modal-edit-article" class="modal">
-		<div class="modal-content">
-			<span class="close-modal" data-modal="modal-edit-article">&times;</span>
-			<h2>Editar Artículo</h2>
-			<form id="form-edit-article" class="form-modal">
-				<input type="hidden" id="edit-article-id">
-
-				<div class="form-group">
-					<label for="edit-article-category">Categoría:</label>
-					<select id="edit-article-category" required></select>
-				</div>
-
-				<div class="form-group">
-					<label for="edit-article-description">Descripción:</label>
-					<textarea id="edit-article-description" required></textarea>
-				</div>
-
-				<div class="form-group">
-					<label for="edit-article-area">Área:</label>
-					<select id="edit-article-area" required></select>
-				</div>
-
-				<div class="form-buttons">
-					<button type="submit" class="btn-submit">Guardar Cambios</button>
-					<button type="button" class="btn-cancel" data-modal="modal-edit-article">Cancelar</button>
-				</div>
-			</form>
-		</div>
-	</div>
-	<!-- Modal para Nueva Categoría -->
-	<div id="modal-new-category" class="modal">
-		<div class="modal-content">
-			<span class="close-modal" data-modal="modal-new-category">&times;</span>
-			<h2>Nueva Categoría</h2>
-			<form id="form-new-category" class="form-modal">
-				<div class="form-group">
-					<label for="category-description">Descripción:</label>
-					<textarea id="category-description" required></textarea>
-				</div>
-				<div class="form-group">
-					<label for="category-status">Estado:</label>
-					<select id="category-status" required>
-						<option value="">-- Seleccionar --</option>
-						<option value="Activo">Activo</option>
-						<option value="Inactivo">Inactivo</option>
-					</select>
-				</div>
-				<div class="form-buttons">
-					<button type="submit" class="btn-submit">Guardar</button>
-					<button type="button" class="btn-cancel" data-modal="modal-new-category">Cancelar</button>
-				</div>
-			</form>
-		</div>
-	</div>
-	<!-- Modal para Editar Categoría -->
-	<div id="modal-edit-category" class="modal">
-		<div class="modal-content">
-			<span class="close-modal" data-modal="modal-edit-category">&times;</span>
-			<h2>Editar Categoría</h2>
-			<form id="form-edit-category" class="form-modal">
-				<input type="hidden" id="edit-category-id">
-
-				<div class="form-group">
-					<label for="edit-category-description">Descripción:</label>
-					<textarea id="edit-category-description" required></textarea>
-				</div>
-
-				<div class="form-buttons">
-					<button type="submit" class="btn-submit">Guardar Cambios</button>
-					<button type="button" class="btn-cancel" data-modal="modal-edit-category">Cancelar</button>
-				</div>
-			</form>
-		</div>
-	</div>
-	<script src="../js/incidencias.js"></script>
-	<script src="../js/employee.js"></script>
+	<script src="./sistemas-incidencias.js"></script>
 </body>
 
 </html>
