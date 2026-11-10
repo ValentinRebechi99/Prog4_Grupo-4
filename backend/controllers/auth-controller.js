@@ -17,7 +17,7 @@ export default class AuthControlador {
             // CREAR TOKEN
             const token = jwt.sign(usuarioBD, process.env.JWT_SECRET, {expiresIn: '1h'});
 
-            res.status(200).json({token: token});
+            res.status(200).json({ token: token, usuario: usuarioBD });
 
         }catch(error){
             console.error('Error al obtener usuario /login:', error.message);

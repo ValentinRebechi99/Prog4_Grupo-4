@@ -121,7 +121,9 @@ async function cargarArticulosSelect() {
     if (!select) return;
 
     try {
-        const res = await fetch(`${API_BASE}/articulos`);
+        const res = await fetch(`${API_BASE}/articulos`, {
+            headers: window.PortalAuth?.authHeaders()
+        });
         if (!res.ok) throw new Error('Error al obtener artículos');
         const articulos = await res.json();
 
@@ -157,7 +159,7 @@ function setupFormularioIncidencia() {
         try {
             const res = await fetch(`${API_BASE}/incidencias`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: window.PortalAuth ? window.PortalAuth.authHeaders({ 'Content-Type': 'application/json' }) : { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     id_articulo,
                     descripcion_pedido,
@@ -170,13 +172,21 @@ function setupFormularioIncidencia() {
                 throw new Error(err.error || 'Error al crear la incidencia');
             }
 
-            alert('Incidencia creada con éxito.');
             form.reset();
             cambiarSeccionMunicipal('incidents');
             window.location.hash = 'incidents';
             await cargarIncidencias();
+            await window.PortalUI.alert({
+                title: 'Incidencia creada',
+                message: 'Incidencia creada con éxito.',
+                type: 'success'
+            });
         } catch (error) {
-            alert('Error al registrar incidencia: ' + error.message);
+            await window.PortalUI.alert({
+                title: 'Error al registrar',
+                message: 'Error al registrar incidencia: ' + error.message,
+                type: 'error'
+            });
         }
     });
 }
@@ -187,7 +197,9 @@ async function cargarIncidencias() {
     if (!tbody) return;
 
     try {
-        const res = await fetch(`${API_BASE}/incidencias`);
+        const res = await fetch(`${API_BASE}/incidencias`, {
+            headers: window.PortalAuth?.authHeaders()
+        });
         if (!res.ok) throw new Error('Error al obtener incidencias');
         const incidencias = await res.json();
 
@@ -227,7 +239,13 @@ async function cargarIncidencias() {
             const btnCancelar = row.querySelector('.btn-cancelar-incidencia');
             if (btnCancelar) {
                 btnCancelar.addEventListener('click', async () => {
-                    const confirmar = confirm(`¿Estás seguro de que deseas cancelar la incidencia ${codigo}?`);
+                    const confirmar = await window.PortalUI.confirm({
+                        title: `Cancelar Incidencia ${codigo}`,
+                        message: `¿Estás seguro de que deseas cancelar la incidencia ${codigo}?`,
+                        confirmText: 'Sí, cancelar',
+                        cancelText: 'Volver',
+                        danger: true
+                    });
                     if (confirmar) {
                         await cancelarIncidencia(inc.id_incidencia);
                     }
@@ -246,7 +264,7 @@ async function cancelarIncidencia(id) {
     try {
         const res = await fetch(`${API_BASE}/incidencias/${id}/estado`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: window.PortalAuth ? window.PortalAuth.authHeaders({ 'Content-Type': 'application/json' }) : { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id_estado: 4, descripcion_resolucion: 'Cancelada por el usuario' })
         });
 
@@ -257,7 +275,11 @@ async function cancelarIncidencia(id) {
 
         await cargarIncidencias();
     } catch (error) {
-        alert('Error al cancelar incidencia: ' + error.message);
+        await window.PortalUI.alert({
+            title: 'Error',
+            message: 'Error al cancelar incidencia: ' + error.message,
+            type: 'error'
+        });
     }
 }
 

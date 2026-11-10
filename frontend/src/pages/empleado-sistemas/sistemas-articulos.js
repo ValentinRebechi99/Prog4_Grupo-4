@@ -45,10 +45,12 @@ async function cargarCategoriasYAreas() {
         ]);
 
         if (resCat.ok) {
-            categoriasList = await resCat.json();
+            const dataCat = await resCat.json();
+            categoriasList = Array.isArray(dataCat) ? dataCat : (dataCat?.categorias || []);
         }
         if (resArea.ok) {
-            areasList = await resArea.json();
+            const dataArea = await resArea.json();
+            areasList = Array.isArray(dataArea) ? dataArea : (dataArea?.areas || []);
         }
 
         poblarSelects();
@@ -90,7 +92,9 @@ async function cargarArticulos() {
     if (!tbody) return;
 
     try {
-        const res = await fetch(`${API_BASE}/articulos`);
+        const res = await fetch(`${API_BASE}/articulos`, {
+            headers: window.PortalAuth?.authHeaders()
+        });
         if (!res.ok) throw new Error('Error al obtener artículos');
         const articulos = await res.json();
 
@@ -161,7 +165,7 @@ function setupNuevoArticulo() {
             try {
                 const res = await fetch(`${API_BASE}/articulos`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: window.PortalAuth ? window.PortalAuth.authHeaders({ 'Content-Type': 'application/json' }) : { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id_categoria, descripcion, id_area })
                 });
 
@@ -203,7 +207,7 @@ function setupEditarArticulo() {
         try {
             const res = await fetch(`${API_BASE}/articulos/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: window.PortalAuth ? window.PortalAuth.authHeaders({ 'Content-Type': 'application/json' }) : { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id_categoria, descripcion, id_area })
             });
 
@@ -224,7 +228,8 @@ function setupEditarArticulo() {
 async function eliminarArticulo(id) {
     try {
         const res = await fetch(`${API_BASE}/articulos/${id}`, {
-            method: 'PATCH'
+            method: 'DELETE',
+            headers: window.PortalAuth?.authHeaders()
         });
 
         if (!res.ok) {

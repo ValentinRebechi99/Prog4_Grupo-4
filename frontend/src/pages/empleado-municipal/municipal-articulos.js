@@ -9,7 +9,9 @@ async function cargarArticulos() {
     if (!tbody) return;
 
     try {
-        const res = await fetch(`${API_BASE}/articulos`);
+        const res = await fetch(`${API_BASE}/articulos`, {
+            headers: window.PortalAuth?.authHeaders()
+        });
         if (!res.ok) throw new Error('Error al obtener artículos');
         const articulos = await res.json();
 

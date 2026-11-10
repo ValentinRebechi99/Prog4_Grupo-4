@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const email = emailInput.value.trim();
 		const password = passwordInput.value.trim();
+		const remember = Boolean(loginForm.querySelector('input[name="remember"]')?.checked);
 		const submitButton = loginForm.querySelector('.submit-button');
 
 		// Validaciones
@@ -89,32 +90,49 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		// Simular envío (en una aplicación real, aquí irían las credenciales al servidor)
 		submitButton.disabled = true;
 		submitButton.textContent = 'Iniciando sesión...';
 
 		try {
-			// Simular llamada al servidor
-			await new Promise((resolve) => setTimeout(resolve, 1500));
+			const response = await fetch('http://localhost:3000/api/auth/login', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ usuario: email, contrasenia: password })
+			});
 
-			// Redirección según rol/usuario
-			showMessage('¡Sesión iniciada correctamente!', 'success');
+			const data = await response.json().catch(() => ({}));
 
-			let destino = 'src/pages/empleado-sistemas/sistemas-incidencias.html';
-			const emailLower = email.toLowerCase();
-			if (emailLower.includes('director')) {
-				destino = 'src/pages/director/director-dashboard.html';
-			} else if (emailLower.includes('sistemas')) {
-				destino = 'src/pages/empleado-sistemas/sistemas-incidencias.html';
-			} else if (emailLower.includes('municipal') || emailLower.includes('empleado')) {
-				destino = 'src/pages/empleado-municipal/municipal-incidencias.html';
+			if (!response.ok) {
+				let errorMsg = 'Nombre de usuario y/o contraseña incorrectos.';
+				if (typeof data.mensaje === 'string') {
+					errorMsg = data.mensaje;
+				} else if (data.mensaje && typeof data.mensaje === 'object') {
+					const firstError = Object.values(data.mensaje).find((item) => item?.msg);
+					if (firstError?.msg) errorMsg = firstError.msg;
+				} else if (data.error) {
+					errorMsg = data.error;
+				}
+				showMessage(errorMsg);
+				return;
 			}
+
+			const token = data.token;
+			const usuario = data.usuario || window.PortalAuth?.parseToken(token);
+			const destino = window.PortalAuth?.getHomePathForRole(usuario?.rol);
+
+			if (!token || !destino) {
+				showMessage('Tu usuario no tiene un rol válido asignado para ingresar al portal.');
+				return;
+			}
+
+			window.PortalAuth.saveSession(token, usuario, remember);
+			showMessage('¡Sesión iniciada correctamente!', 'success');
 
 			setTimeout(() => {
 				window.location.href = destino;
-			}, 800);
+			}, 400);
 		} catch (error) {
-			showMessage('Error al iniciar sesión. Por favor, intenta nuevamente.');
+			showMessage('No se pudo conectar con el servidor. Verificá que el backend esté activo.');
 		} finally {
 			submitButton.disabled = false;
 			submitButton.innerHTML = 'Ingresar <span aria-hidden="true">→</span>';

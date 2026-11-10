@@ -6,7 +6,9 @@ const API_BASE = 'http://localhost:3000/api';
 
 async function actualizarEstadisticas() {
     try {
-        const res = await fetch(`${API_BASE}/incidencias`);
+        const res = await fetch(`${API_BASE}/incidencias`, {
+            headers: window.PortalAuth?.authHeaders()
+        });
         if (!res.ok) throw new Error('Error al obtener incidencias');
         const incidencias = await res.json();
 

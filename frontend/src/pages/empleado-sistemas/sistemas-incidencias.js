@@ -56,7 +56,11 @@ async function cargarIncidencias() {
     if (!tbody) return;
 
     try {
-        const res = await fetch(`${API_BASE}/incidencias`);
+        const usuario = window.PortalAuth?.getSession()?.usuario;
+        const query = usuario?.id_usuario ? `?asignado_a=${usuario.id_usuario}` : '';
+        const res = await fetch(`${API_BASE}/incidencias${query}`, {
+            headers: window.PortalAuth?.authHeaders()
+        });
         if (!res.ok) throw new Error('Error al obtener incidencias');
         const incidencias = await res.json();
 
@@ -102,7 +106,14 @@ async function cargarIncidencias() {
             const btnFinalizar = row.querySelector('.btn-finalize-incident');
             if (btnFinalizar) {
                 btnFinalizar.addEventListener('click', async () => {
-                    const resolucion = prompt('Ingrese la descripción de la resolución (opcional):') || '';
+                    const resolucion = await window.PortalUI.prompt({
+                        title: `Finalizar Incidencia ${codigo}`,
+                        label: 'Ingrese la descripción de la resolución (opcional):',
+                        placeholder: 'Escribí un comentario sobre la resolución...',
+                        confirmText: 'Finalizar',
+                        cancelText: 'Cancelar'
+                    });
+                    if (resolucion === null) return;
                     await cambiarEstadoIncidencia(inc.id_incidencia, 3, resolucion);
                 });
             }
@@ -110,7 +121,13 @@ async function cargarIncidencias() {
             const btnCancelar = row.querySelector('.btn-cancelar-incidencia');
             if (btnCancelar) {
                 btnCancelar.addEventListener('click', async () => {
-                    const confirmar = confirm(`¿Estás seguro de que deseas cancelar la incidencia ${codigo}?`);
+                    const confirmar = await window.PortalUI.confirm({
+                        title: `Cancelar Incidencia ${codigo}`,
+                        message: `¿Estás seguro de que deseas cancelar la incidencia ${codigo}?`,
+                        confirmText: 'Sí, cancelar',
+                        cancelText: 'Volver',
+                        danger: true
+                    });
                     if (confirmar) {
                         await cambiarEstadoIncidencia(inc.id_incidencia, 4, 'Cancelada por el usuario');
                     }
@@ -129,7 +146,7 @@ async function cambiarEstadoIncidencia(id, id_estado, descripcion_resolucion = '
     try {
         const res = await fetch(`${API_BASE}/incidencias/${id}/estado`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: window.PortalAuth ? window.PortalAuth.authHeaders({ 'Content-Type': 'application/json' }) : { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id_estado, descripcion_resolucion })
         });
 
@@ -140,7 +157,11 @@ async function cambiarEstadoIncidencia(id, id_estado, descripcion_resolucion = '
 
         await cargarIncidencias();
     } catch (error) {
-        alert('Error al actualizar la incidencia: ' + error.message);
+        await window.PortalUI.alert({
+            title: 'Error',
+            message: 'Error al actualizar la incidencia: ' + error.message,
+            type: 'error'
+        });
     }
 }
 

@@ -52,12 +52,37 @@ function formatearPrioridad(prioridad) {
     return mapa[prioridad] || prioridad || 'Media';
 }
 
+async function cargarEmpleadosSistemas() {
+    const select = document.getElementById('empleado-select');
+    if (!select) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/usuarios?rol=2`, {
+            headers: window.PortalAuth?.authHeaders()
+        });
+        if (!res.ok) throw new Error('Error al obtener empleados de sistemas');
+        const empleados = await res.json();
+
+        select.innerHTML = '<option value="">Seleccione un empleado...</option>';
+        empleados.forEach((emp) => {
+            const opt = document.createElement('option');
+            opt.value = emp.id_usuario;
+            opt.textContent = `${emp.nombres} ${emp.apellidos}`.trim();
+            select.appendChild(opt);
+        });
+    } catch (error) {
+        console.error('Error al cargar empleados de sistemas:', error);
+    }
+}
+
 async function cargarIncidencias() {
     const tbody = document.querySelector('#incidencias-table tbody');
     if (!tbody) return;
 
     try {
-        const res = await fetch(`${API_BASE}/incidencias`);
+        const res = await fetch(`${API_BASE}/incidencias`, {
+            headers: window.PortalAuth?.authHeaders()
+        });
         if (!res.ok) throw new Error('Error al obtener incidencias');
         const incidencias = await res.json();
 
@@ -74,7 +99,6 @@ async function cargarIncidencias() {
             const badgeEstado = `<span class="badge ${claseBadgeEstado(estadoTexto)}">${estadoTexto}</span>`;
             const prioridadTexto = formatearPrioridad(inc.prioridad);
             const badgePrioridad = `<span class="badge ${claseBadgePrioridad(prioridadTexto)}">${prioridadTexto}</span>`;
-            const empleado = inc.asignado_a_nombre || 'No asignado';
 
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -82,15 +106,22 @@ async function cargarIncidencias() {
                 <td>${articulo}</td>
                 <td>${badgePrioridad}</td>
                 <td>${badgeEstado}</td>
-                <td>${empleado}</td>
+                <td class="td-empleado"></td>
                 <td>
                     <button type="button" class="btn-action btn-asignar" style="background-color: #0084d1; color: white; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer;">Asignar</button>
                 </td>
             `;
 
+            const tdEmpleado = row.querySelector('.td-empleado');
+            if (inc.asignado_a_nombre) {
+                tdEmpleado.textContent = inc.asignado_a_nombre;
+            } else {
+                tdEmpleado.innerHTML = '<span style="color: #dc3545; font-weight: 600;">Sin Asignar</span>';
+            }
+
             const btnAsignar = row.querySelector('.btn-asignar');
             btnAsignar.addEventListener('click', () => {
-                abrirModalAsignar(inc.id_incidencia);
+                abrirModalAsignar(inc.id_incidencia, inc.asignado_a);
             });
 
             tbody.appendChild(row);
@@ -101,8 +132,12 @@ async function cargarIncidencias() {
     }
 }
 
-function abrirModalAsignar(id) {
+function abrirModalAsignar(id, asignadoA = '') {
     incidenciaSeleccionadaId = id;
+    const select = document.getElementById('empleado-select');
+    if (select) {
+        select.value = asignadoA ? String(asignadoA) : '';
+    }
     const modal = document.getElementById('modal-asignar');
     if (modal) modal.style.display = 'flex';
 }
@@ -133,16 +168,25 @@ function setupModal() {
             const select = document.getElementById('empleado-select');
             const empleadoVal = select ? select.value : '';
             if (!empleadoVal) {
-                alert('Por favor seleccione un empleado.');
+                await window.PortalUI.alert({
+                    title: 'Selección requerida',
+                    message: 'Por favor seleccione un empleado.',
+                    type: 'warning'
+                });
                 return;
             }
+            const empleadoNombre = select.options[select.selectedIndex]?.textContent || `empleado ${empleadoVal}`;
 
             try {
-                // Actualiza estado a 'En Proceso' (id_estado = 2) al asignar
+                // Actualiza estado a 'En Proceso' (id_estado = 2) y asigna al empleado seleccionado
                 const res = await fetch(`${API_BASE}/incidencias/${incidenciaSeleccionadaId}/estado`, {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id_estado: 2, descripcion_resolucion: `Asignado a empleado ${empleadoVal}` })
+                    headers: window.PortalAuth ? window.PortalAuth.authHeaders({ 'Content-Type': 'application/json' }) : { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id_estado: 2,
+                        asignado_a: Number(empleadoVal),
+                        descripcion_resolucion: `Asignado a ${empleadoNombre}`
+                    })
                 });
 
                 if (!res.ok) {
@@ -150,11 +194,19 @@ function setupModal() {
                     throw new Error(err.error || 'Error al asignar');
                 }
 
-                alert('Incidencia asignada correctamente.');
                 cerrarModalAsignar();
                 await cargarIncidencias();
+                await window.PortalUI.alert({
+                    title: 'Asignación completada',
+                    message: 'Incidencia asignada correctamente.',
+                    type: 'success'
+                });
             } catch (error) {
-                alert('Error al asignar incidencia: ' + error.message);
+                await window.PortalUI.alert({
+                    title: 'Error al asignar',
+                    message: 'Error al asignar incidencia: ' + error.message,
+                    type: 'error'
+                });
             }
         });
     }
@@ -162,6 +214,7 @@ function setupModal() {
 
 document.addEventListener('DOMContentLoaded', () => {
     setupModal();
+    cargarEmpleadosSistemas();
     cargarIncidencias();
 });
 

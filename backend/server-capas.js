@@ -10,6 +10,7 @@ import categoriasRoutes from './routes/categorias-routes.js';
 import articulosRoutes from './routes/articulos-routes.js';
 import authRoutes from './routes/auth-routes.js';
 import usuariosRoutes from './routes/usuarios-routes.js';
+import incidenciasRoutes from './routes/incidencias-routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,6 +44,7 @@ app.use('/api/categorias', categoriasRoutes);
 app.use('/api/articulos', articulosRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/incidencias', incidenciasRoutes);
 
 app.listen(port, () => {
     console.log(`🚀 Servidor en capas corriendo en http://localhost:${port}`);

@@ -17,4 +17,8 @@ export default class UsuariosServicio {
     actualizarAvatar = (id_usuario, avatar) => {
         return this.usuario.actualizarAvatar(id_usuario, avatar);
     }
+
+    buscarPorRol = (rol) => {
+        return this.usuario.buscarPorRol(rol);
+    }
 }

@@ -68,7 +68,9 @@ function formatearFecha(fechaStr) {
 
 async function cargarReportes() {
     try {
-        const res = await fetch(`${API_BASE}/incidencias`);
+        const res = await fetch(`${API_BASE}/incidencias`, {
+            headers: window.PortalAuth?.authHeaders()
+        });
         if (!res.ok) throw new Error('Error al obtener incidencias');
         incidenciasLista = await res.json();
         aplicarFiltros();
@@ -97,8 +99,6 @@ function renderizarTabla(lista) {
         const badgeEstado = `<span class="badge ${claseBadgeEstado(estadoTexto)}">${estadoTexto}</span>`;
         const prioridadTexto = formatearPrioridad(inc.prioridad);
         const badgePrioridad = `<span class="badge ${claseBadgePrioridad(prioridadTexto)}">${prioridadTexto}</span>`;
-        const empleado = inc.asignado_a_nombre || 'No asignado';
-
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${codigo}</td>
@@ -106,8 +106,14 @@ function renderizarTabla(lista) {
             <td>${articulo}</td>
             <td>${badgePrioridad}</td>
             <td>${badgeEstado}</td>
-            <td>${empleado}</td>
+            <td class="td-empleado"></td>
         `;
+        const tdEmpleado = row.querySelector('.td-empleado');
+        if (inc.asignado_a_nombre) {
+            tdEmpleado.textContent = inc.asignado_a_nombre;
+        } else {
+            tdEmpleado.innerHTML = '<span style="color: #dc3545; font-weight: 600;">Sin Asignar</span>';
+        }
         tbody.appendChild(row);
     });
 }
@@ -153,7 +159,7 @@ function aplicarFiltros() {
 
         // Empleado
         if (filterEmpleado) {
-            const emp = (inc.asignado_a_nombre || '').toLowerCase();
+            const emp = (inc.asignado_a_nombre || 'Sin Asignar').toLowerCase();
             if (!emp.includes(filterEmpleado)) return false;
         }
 

@@ -166,7 +166,7 @@ function setupEditarCategoria() {
 async function eliminarCategoria(id) {
     try {
         const res = await fetch(`${API_BASE}/categorias/${id}`, {
-            method: 'PATCH'
+            method: 'DELETE'
         });
 
         if (!res.ok) {

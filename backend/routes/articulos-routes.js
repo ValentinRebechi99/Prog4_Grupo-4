@@ -13,7 +13,7 @@ const cache = apicache.middleware;
 // 2. Aplicar autenticación a todas las rutas de este archivo automáticamente
 router.use(autenticar);
 
-router.get('/', autorizarUsuarios([2]), articulosControlador.buscarTodos);
+router.get('/', autorizarUsuarios([2, 3]), articulosControlador.buscarTodos);
 
 router.get('/:id_articulo', 
     [ 

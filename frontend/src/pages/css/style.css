@@ -1158,3 +1158,73 @@ tbody tr td[colspan] {
 	text-align: center;
 	vertical-align: middle;
 }
+
+/* ====================================
+   DIÁLOGOS MODALES PERSONALIZADOS
+   ==================================== */
+
+.portal-dialog-modal {
+	z-index: 1200;
+}
+
+.portal-dialog-title-wrap {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding-right: 1.5rem;
+}
+
+.portal-dialog-icon {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 1rem;
+	flex-shrink: 0;
+}
+
+.portal-dialog-icon--success {
+	background: rgba(0, 168, 84, 0.14);
+	color: var(--success);
+}
+
+.portal-dialog-icon--error {
+	background: rgba(211, 47, 47, 0.14);
+	color: var(--error);
+}
+
+.portal-dialog-icon--warning {
+	background: rgba(255, 167, 38, 0.18);
+	color: #e65100;
+}
+
+.portal-dialog-icon--info {
+	background: rgba(0, 132, 209, 0.14);
+	color: var(--accent);
+}
+
+.portal-dialog-body {
+	padding: 1.25rem 0 0.5rem;
+}
+
+.portal-dialog-message {
+	font-size: 1rem;
+	color: var(--gray-700);
+	line-height: 1.5;
+	margin: 0;
+}
+
+.portal-dialog-footer {
+	margin-top: 1.5rem;
+}
+
+.portal-btn-danger {
+	background: linear-gradient(135deg, var(--error) 0%, #b71c1c 100%);
+}
+
+.portal-btn-danger:hover {
+	box-shadow: 0 8px 16px rgba(211, 47, 47, 0.3);
+}
