@@ -197,7 +197,9 @@ async function cargarIncidencias() {
     if (!tbody) return;
 
     try {
-        const res = await fetch(`${API_BASE}/incidencias`, {
+        const usuario = window.PortalAuth?.getSession()?.usuario;
+        const query = usuario?.id_usuario ? `?creado_por=${usuario.id_usuario}` : '';
+        const res = await fetch(`${API_BASE}/incidencias${query}`, {
             headers: window.PortalAuth?.authHeaders()
         });
         if (!res.ok) throw new Error('Error al obtener incidencias');

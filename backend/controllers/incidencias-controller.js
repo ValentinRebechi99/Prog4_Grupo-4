@@ -10,10 +10,19 @@ export default class IncidenciasControlador {
     buscarTodos = async (req, res) => {
         try {
             const filtros = {};
-            if (Number(req.usuario?.rol) === 2) {
+            const rol = Number(req.usuario?.rol);
+
+            if (rol === 2) {
                 filtros.asignado_a = Number(req.usuario.id_usuario);
-            } else if (req.query.asignado_a) {
-                filtros.asignado_a = Number(req.query.asignado_a);
+            } else if (rol === 3) {
+                filtros.creado_por = Number(req.usuario.id_usuario);
+            } else {
+                if (req.query.asignado_a) {
+                    filtros.asignado_a = Number(req.query.asignado_a);
+                }
+                if (req.query.creado_por) {
+                    filtros.creado_por = Number(req.query.creado_por);
+                }
             }
 
             const rows = await this.incidencias.buscarTodos(filtros);
@@ -30,6 +39,15 @@ export default class IncidenciasControlador {
             if (!incidencia) {
                 return res.status(404).json({ error: 'Incidencia no encontrada' });
             }
+
+            const rol = Number(req.usuario?.rol);
+            if (rol === 3 && Number(incidencia.creado_por) !== Number(req.usuario.id_usuario)) {
+                return res.status(403).json({ error: 'Acceso Denegado' });
+            }
+            if (rol === 2 && Number(incidencia.asignado_a) !== Number(req.usuario.id_usuario)) {
+                return res.status(403).json({ error: 'Acceso Denegado' });
+            }
+
             res.status(200).json(incidencia);
         } catch (error) {
             console.error('Error en GET /api/incidencias/:id:', error);

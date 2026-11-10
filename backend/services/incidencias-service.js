@@ -18,10 +18,21 @@ export default class IncidenciasDatos {
             LEFT JOIN estados e ON i.id_estado = e.id_estado
         `;
 
+        const condiciones = [];
         const valores = [];
-        if (filtros.asignado_a) {
-            query += ` WHERE i.asignado_a = $1`;
+
+        if (filtros.asignado_a !== undefined && filtros.asignado_a !== null) {
             valores.push(filtros.asignado_a);
+            condiciones.push(`i.asignado_a = $${valores.length}`);
+        }
+
+        if (filtros.creado_por !== undefined && filtros.creado_por !== null) {
+            valores.push(filtros.creado_por);
+            condiciones.push(`i.creado_por = $${valores.length}`);
+        }
+
+        if (condiciones.length > 0) {
+            query += ` WHERE ${condiciones.join(' AND ')}`;
         }
 
         query += ` ORDER BY i.id_incidencia DESC`;
