@@ -1,19 +1,61 @@
 import express from 'express';
 import apicache from 'apicache';
+import { check, param } from 'express-validator';
+import { validarCampos } from '../middlewares/validarCampos.js';
 import CategoriasControlador from '../controllers/categorias-controller.js';
 
 const router = express.Router();
 const categoriasControlador = new CategoriasControlador();
 const cache = apicache.middleware;
 
-router.get('/', cache('5 minutes'), categoriasControlador.buscarTodos);
+// Listar todas las categorías activas
+router.get('/', categoriasControlador.buscarTodos);
 
-router.get('/:id_categoria', categoriasControlador.buscarPorId);
+// Buscar categoría por ID
+router.get('/:id_categoria', 
+    [ 
+        param('id_categoria')        
+        .isInt().withMessage('El id debe ser un valor numérico')
+        .notEmpty().withMessage('El id es obligatorio'),
+        validarCampos
+    ], 
+    categoriasControlador.buscarPorId
+);
 
-router.put('/:id_categoria', categoriasControlador.editar);
+// Crear una categoría
+router.post('/', 
+    [
+        check('descripcion')
+        .notEmpty().withMessage('La descripcion es obligatoria')
+        .isString().withMessage('La descripcion debe ser un texto'),
+        validarCampos
+    ], 
+    categoriasControlador.crear
+);
 
-router.delete('/:id_categoria', categoriasControlador.borrar);
+// Modificar una categoría
+router.put('/:id_categoria', 
+    [
+        param('id_categoria')
+        .isInt().withMessage('El id debe ser un valor numérico')
+        .notEmpty().withMessage('El id es necesario para la modificación'),
+        check('descripcion')
+        .notEmpty().withMessage('La descripcion es obligatoria para la modificación')
+        .isString().withMessage('La descripcion debe ser un texto'),
+        validarCampos
+    ], 
+    categoriasControlador.editar
+);
 
-router.post('/', categoriasControlador.crear);
+// Eliminar (Soft Delete mediante método DELETE)
+router.delete('/:id_categoria', 
+    [
+        param('id_categoria')
+        .isInt().withMessage('El id debe ser un valor numérico')
+        .notEmpty().withMessage('El id es necesario para la eliminación'),
+        validarCampos
+    ], 
+    categoriasControlador.borrar
+);
 
 export default router;

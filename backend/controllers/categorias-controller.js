@@ -28,14 +28,13 @@ export default class CategoriasControlador {
     }
 
     buscarTodos = async (req, res) => {
-        try{
+        try {
             const rows = await this.categoria.buscarTodos();
 
-            res.status(200).json(
-                {categorias: rows}
-            );
+            
+            res.status(200).json(rows);
 
-        }catch(error){
+        } catch (error) {
             console.error('Error al obtener todas las categoría:', error.message);
             return res.status(500).json({ 
                 error: 'Error interno del servidor.' 

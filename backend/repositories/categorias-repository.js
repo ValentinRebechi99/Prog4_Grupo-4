@@ -73,3 +73,4 @@ export default class CategoriasDatos {
         return result.rows[0];
     }
 }
+
