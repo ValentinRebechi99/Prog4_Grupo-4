@@ -1,10 +1,11 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import 'dotenv/config';
 
 
+//estren@correo.com
 import areasRoutes from './routes/areas-routes.js';
 import categoriasRoutes from './routes/categorias-routes.js';
 import articulosRoutes from './routes/articulos-routes.js';

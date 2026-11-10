@@ -1,4 +1,5 @@
 import ArticulosDatos from '../repositories/articulos-repository.js';
+import apicache from 'apicache'; // <-- 1. Importamos la librería
 
 export default class ArticulosServicio {
     constructor() {
@@ -14,7 +15,7 @@ export default class ArticulosServicio {
     }
 
     crear = (articulo) => {
-        apicache.clear();
+        apicache.clear(); // <-- 2. Limpia la caché al crear un artículo
         return this.articulos.crear(articulo);
     }
 
@@ -23,7 +24,7 @@ export default class ArticulosServicio {
         if(articuloExistente === null){
             return null;
         }
-        apicache.clear();
+        apicache.clear(); // <-- 3. Limpia la caché al editar
         return this.articulos.editar(id_articulo, articulo);
     }
 
@@ -32,7 +33,7 @@ export default class ArticulosServicio {
         if(articuloExistente === null){
             return null;
         }
-        apicache.clear();
+        apicache.clear(); // <-- 4. Limpia la caché al borrar
         return this.articulos.borrar(id_articulo);
     }
     

@@ -16,15 +16,19 @@ export default class CategoriasDatos {
     }
 
     buscarTodos = async () => {
-        const sql = `SELECT id_categoria, descripcion 
-                    FROM categorias as c             
+        const sql = `SELECT 
+                        id_categoria AS id, 
+                        id_categoria, 
+                        descripcion AS nombre, 
+                        descripcion 
+                    FROM categorias as c            
                     WHERE c.activo = 1
                     ORDER BY c.descripcion ASC;`;
 
         const {rowCount, rows} = await pool.query(sql);
 
         if (rowCount === 0) {
-            return null;
+            return []; // Es mejor retornar array vacío para evitar errores de map en el frontend
         }
         return rows;
     }

@@ -12,12 +12,14 @@ function claseBadgeEstado(estado) {
         'PENDIENTE': 'badge-pendiente',
         'En Proceso': 'badge-en-proceso',
         'EN PROCESO': 'badge-en-proceso',
+        'Resuelta': 'badge-resuelto',
+        'RESUELTA': 'badge-resuelto',
         'Resuelto': 'badge-resuelto',
         'RESUELTO': 'badge-resuelto',
-        'Cancelado': 'badge-cancelado',
-        'CANCELADO': 'badge-cancelado',
-        'Cancelada': 'badge-cancelado',
-        'CANCELADA': 'badge-cancelado',
+        'Cancelada': 'badge-cancelada',
+        'CANCELADA': 'badge-cancelada',
+        'Cancelado': 'badge-cancelada',
+        'CANCELADO': 'badge-cancelada',
         1: 'badge-pendiente',
         2: 'badge-en-proceso',
         3: 'badge-resuelto',
@@ -28,10 +30,14 @@ function claseBadgeEstado(estado) {
 
 function claseBadgePrioridad(prioridad) {
     const mapa = {
-        'Crítica': 'badge-crítica',
+        'Crítica': 'badge-alta',
+        'CRÍTICA': 'badge-alta',
         'Alta': 'badge-alta',
+        'ALTA': 'badge-alta',
         'Media': 'badge-media',
+        'MEDIA': 'badge-media',
         'Baja': 'badge-baja',
+        'BAJA': 'badge-baja',
         1: 'badge-alta',
         2: 'badge-media',
         3: 'badge-baja'
@@ -66,20 +72,34 @@ async function cargarIncidencias() {
 
         tbody.innerHTML = '';
         if (incidencias.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888;">No hay incidencias asignadas.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888;">No hay incidencias asignadas.</td></tr>';
             return;
         }
 
         incidencias.forEach((inc) => {
             const codigo = `#${inc.id_incidencia}`;
             const articulo = inc.articulo_descripcion || (inc.id_articulo ? `Artículo #${inc.id_articulo}` : 'Sin artículo');
-            const estadoTexto = inc.estado || (inc.id_estado === 1 ? 'Pendiente' : inc.id_estado === 2 ? 'En Proceso' : inc.id_estado === 3 ? 'Resuelto' : inc.id_estado === 4 ? 'Cancelado' : 'Pendiente');
+            const descripcionPedido = inc.descripcion_pedido || inc.descripcion || 'Sin descripción registrada.';
+            
+            // Limpieza y normalización estricta del estado para corregir "resuela" / "resuelto" a "Resuelta"
+            let estadoTexto = inc.estado || inc.descripcion_estado || (inc.id_estado === 1 ? 'Pendiente' : inc.id_estado === 2 ? 'En Proceso' : inc.id_estado === 3 ? 'Resuelta' : inc.id_estado === 4 ? 'Cancelada' : 'Pendiente');
+            const estLower = String(estadoTexto).toLowerCase().trim();
+            if (estLower.includes('resuel') || estLower.includes('resue')) {
+                estadoTexto = 'Resuelta';
+            } else if (estLower.includes('cancel')) {
+                estadoTexto = 'Cancelada';
+            } else if (estLower.includes('proceso')) {
+                estadoTexto = 'En Proceso';
+            } else if (estLower.includes('pend')) {
+                estadoTexto = 'Pendiente';
+            }
+
             const badgeEstado = `<span class="badge ${claseBadgeEstado(estadoTexto)}">${estadoTexto}</span>`;
             const prioridadTexto = formatearPrioridad(inc.prioridad);
             const badgePrioridad = `<span class="badge ${claseBadgePrioridad(prioridadTexto)}">${prioridadTexto}</span>`;
 
             let accion = '<span style="color: #999;">—</span>';
-            const estadoNormalizado = (inc.estado || '').trim().toLowerCase();
+            const estadoNormalizado = estLower;
             const esPendiente = inc.id_estado === 1 || estadoNormalizado === 'pendiente' || !inc.estado;
             const esEnProceso = inc.id_estado === 2 || estadoNormalizado === 'en proceso';
 
@@ -98,6 +118,7 @@ async function cargarIncidencias() {
             row.innerHTML = `
                 <td>${codigo}</td>
                 <td>${articulo}</td>
+                <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${descripcionPedido}">${descripcionPedido}</td>
                 <td>${badgePrioridad}</td>
                 <td>${badgeEstado}</td>
                 <td>${accion}</td>
@@ -138,7 +159,7 @@ async function cargarIncidencias() {
         });
     } catch (error) {
         console.error('Error al cargar incidencias:', error);
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Error al conectar con el servidor.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error al conectar con el servidor.</td></tr>';
     }
 }
 
@@ -168,4 +189,3 @@ async function cambiarEstadoIncidencia(id, id_estado, descripcion_resolucion = '
 document.addEventListener('DOMContentLoaded', () => {
     cargarIncidencias();
 });
-

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Actualización de Incidencia</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { padding: 20px; border: 1px solid #ddd; border-radius: 5px; max-width: 600px; margin: auto; }
+        .header { background-color: #004085; color: white; padding: 10px; text-align: center; border-radius: 5px 5px 0 0; }
+        .content { padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Notificación de Incidencia #{{id_incidencia}}</h2>
+        </div>
+        <div class="content">
+            <p>Hola <strong>{{creado_por_nombre}}</strong>,</p>
+            <p>Te informamos que hay una actualización en tu incidencia sobre el artículo: <strong>{{articulo_descripcion}}</strong>.</p>
+            <p><strong>Nuevo Estado:</strong> {{estado}}</p>
+            <p><strong>Detalle / Resolución:</strong> {{descripcion_resolucion}}</p>
+            <p>Saludos cordiales,<br>Área de Sistemas</p>
+        </div>
+    </div>
+</body>
+</html>

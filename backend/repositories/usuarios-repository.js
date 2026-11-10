@@ -46,7 +46,7 @@ export default class UsuariosDatos {
     }
 
     buscarPorRol = async (rol) => {
-        const sql = `SELECT id_usuario, nombres, apellidos, rol
+        const sql = `SELECT id_usuario, nombres, apellidos, CONCAT(nombres, ' ', apellidos) AS nombre, rol
                     FROM usuarios
                     WHERE activo = 1 AND rol = $1
                     ORDER BY nombres ASC, apellidos ASC`;

@@ -1,4 +1,4 @@
-import { pool } from '../src/config/bd.js';
+import pool from '../src/config/bd.js';
 
 const INCIDENCIA_SELECT = `
     SELECT 
@@ -8,9 +8,9 @@ const INCIDENCIA_SELECT = `
         i.descripcion_pedido,
         i.descripcion_resolucion,
         i.prioridad,
-        e.descripcion AS estado,
+        e.nombre AS estado,
         i.id_estado,
-        i.creado AS fecha_creacion,
+        i.fecha_creacion,
         i.creado_por,
         i.asignado_a,
         NULLIF(TRIM(CONCAT_WS(' ', uc.nombres, uc.apellidos)), '') AS creado_por_nombre,
@@ -25,11 +25,11 @@ const INCIDENCIA_SELECT = `
 export default class IncidenciasDatos {
     buscarTodos = async ({ asignado_a } = {}) => {
         if (asignado_a !== undefined && asignado_a !== null) {
-            const query = `${INCIDENCIA_SELECT} WHERE i.asignado_a = $1 ORDER BY i.creado DESC`;
+            const query = `${INCIDENCIA_SELECT} WHERE i.asignado_a = $1 ORDER BY i.fecha_creacion DESC`;
             const { rows } = await pool.query(query, [asignado_a]);
             return rows;
         }
-        const query = `${INCIDENCIA_SELECT} ORDER BY i.creado DESC`;
+        const query = `${INCIDENCIA_SELECT} ORDER BY i.fecha_creacion DESC`;
         const { rows } = await pool.query(query);
         return rows;
     };
@@ -48,8 +48,8 @@ export default class IncidenciasDatos {
 
     crear = async ({ id_articulo, descripcion_pedido, prioridad, creado_por, asignado_a }) => {
         const query = `
-            INSERT INTO incidencias (id_articulo, id_estado, creado_por, asignado_a, prioridad, descripcion_pedido, descripcion_resolucion)
-            VALUES ($1, 1, $2, $3, $4, $5, '')
+            INSERT INTO incidencias (id_articulo, id_estado, creado_por, asignado_a, prioridad, descripcion_pedido, descripcion_resolucion, fecha_creacion)
+            VALUES ($1, 1, $2, $3, $4, $5, '', NOW())
             RETURNING *
         `;
         const values = [

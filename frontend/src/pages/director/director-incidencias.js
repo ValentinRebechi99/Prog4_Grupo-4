@@ -13,16 +13,18 @@ function claseBadgeEstado(estado) {
         'PENDIENTE': 'badge-pendiente',
         'En Proceso': 'badge-en-proceso',
         'EN PROCESO': 'badge-en-proceso',
+        'Resuelta': 'badge-resuelto',
+        'RESUELTA': 'badge-resuelto',
         'Resuelto': 'badge-resuelto',
         'RESUELTO': 'badge-resuelto',
-        'Cancelado': 'badge-cancelado',
-        'CANCELADO': 'badge-cancelado',
-        'Cancelada': 'badge-cancelado',
-        'CANCELADA': 'badge-cancelado',
+        'Cancelada': 'badge-cancelada',
+        'CANCELADA': 'badge-cancelada',
+        'Cancelado': 'badge-cancelada',
+        'CANCELADO': 'badge-cancelada',
         1: 'badge-pendiente',
         2: 'badge-en-proceso',
         3: 'badge-resuelto',
-        4: 'badge-cancelado'
+        4: 'badge-cancelada'
     };
     return mapa[est] || mapa[estado] || 'badge-pendiente';
 }
@@ -95,10 +97,36 @@ async function cargarIncidencias() {
         incidencias.forEach((inc) => {
             const codigo = `#${inc.id_incidencia}`;
             const articulo = inc.articulo_descripcion || (inc.id_articulo ? `Artículo #${inc.id_articulo}` : 'Sin artículo');
-            const estadoTexto = inc.estado || (inc.id_estado === 1 ? 'Pendiente' : inc.id_estado === 2 ? 'En Proceso' : inc.id_estado === 3 ? 'Resuelto' : inc.id_estado === 4 ? 'Cancelado' : 'Pendiente');
+            
+            // Limpieza y normalización de estados
+            let estadoTexto = inc.estado || inc.descripcion_estado || (inc.id_estado === 1 ? 'Pendiente' : inc.id_estado === 2 ? 'En Proceso' : inc.id_estado === 3 ? 'Resuelta' : inc.id_estado === 4 ? 'Cancelada' : 'Pendiente');
+            const estLower = String(estadoTexto).toLowerCase().trim();
+            if (estLower.includes('resuel') || estLower.includes('resue')) {
+                estadoTexto = 'Resuelta';
+            } else if (estLower.includes('cancel')) {
+                estadoTexto = 'Cancelada';
+            } else if (estLower.includes('proceso')) {
+                estadoTexto = 'En Proceso';
+            } else if (estLower.includes('pend')) {
+                estadoTexto = 'Pendiente';
+            }
+
             const badgeEstado = `<span class="badge ${claseBadgeEstado(estadoTexto)}">${estadoTexto}</span>`;
             const prioridadTexto = formatearPrioridad(inc.prioridad);
             const badgePrioridad = `<span class="badge ${claseBadgePrioridad(prioridadTexto)}">${prioridadTexto}</span>`;
+
+            // Verificamos si está habilitado para asignar (solo si está pendiente)
+            const estaDeshabilitadoAsignar = inc.id_estado !== 1 && estLower !== 'pendiente';
+
+            const botonAsignarHTML = estaDeshabilitadoAsignar 
+                ? `<button type="button" class="btn-action" style="background-color: #ccc; color: #666; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: not-allowed;" disabled>Asignar</button>`
+                : `<button type="button" class="btn-action btn-asignar" style="background-color: #0084d1; color: white; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer;">Asignar</button>`;
+
+            // Botón de cancelar visible y activo únicamente si la incidencia está Pendiente
+            const esPendiente = inc.id_estado === 1 || estLower === 'pendiente';
+            const botonCancelarHTML = esPendiente
+                ? `<button type="button" class="btn-action btn-cancelar-inc" style="background-color: #dc3545; color: white; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; margin-left: 5px;">Cancelar</button>`
+                : '';
 
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -108,7 +136,10 @@ async function cargarIncidencias() {
                 <td>${badgeEstado}</td>
                 <td class="td-empleado"></td>
                 <td>
-                    <button type="button" class="btn-action btn-asignar" style="background-color: #0084d1; color: white; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer;">Asignar</button>
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                        ${botonAsignarHTML}
+                        ${botonCancelarHTML}
+                    </div>
                 </td>
             `;
 
@@ -119,16 +150,76 @@ async function cargarIncidencias() {
                 tdEmpleado.innerHTML = '<span style="color: #dc3545; font-weight: 600;">Sin Asignar</span>';
             }
 
-            const btnAsignar = row.querySelector('.btn-asignar');
-            btnAsignar.addEventListener('click', () => {
-                abrirModalAsignar(inc.id_incidencia, inc.asignado_a);
-            });
+            // Evento para Asignar
+            if (!estaDeshabilitadoAsignar) {
+                const btnAsignar = row.querySelector('.btn-asignar');
+                if (btnAsignar) {
+                    btnAsignar.addEventListener('click', () => {
+                        abrirModalAsignar(inc.id_incidencia, inc.asignado_a);
+                    });
+                }
+            }
+
+            // Evento para Cancelar incidencia Pendiente
+            if (esPendiente) {
+                const btnCancelarInc = row.querySelector('.btn-cancelar-inc');
+                if (btnCancelarInc) {
+                    btnCancelarInc.addEventListener('click', () => {
+                        confirmarCancelacionIncidencia(inc.id_incidencia);
+                    });
+                }
+            }
 
             tbody.appendChild(row);
         });
     } catch (error) {
         console.error('Error al cargar incidencias:', error);
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error al conectar con el servidor.</td></tr>';
+    }
+}
+
+async function confirmarCancelacionIncidencia(idIncidencia) {
+    const confirmacion = await window.PortalUI.confirm ? await window.PortalUI.confirm({
+        title: 'Cancelar Incidencia',
+        message: `¿Estás seguro de que deseas cancelar la incidencia #${idIncidencia}?`,
+        type: 'warning'
+    }) : confirm(`¿Estás seguro de que deseas cancelar la incidencia #${idIncidencia}?`);
+
+    if (!confirmacion) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/incidencias/${idIncidencia}/estado`, {
+            method: 'PATCH',
+            headers: window.PortalAuth ? window.PortalAuth.authHeaders({ 'Content-Type': 'application/json' }) : { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id_estado: 4, // Estado 4 = Cancelada
+                descripcion_resolucion: 'Incidencia cancelada por el Director'
+            })
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Error al cancelar la incidencia');
+        }
+
+        await cargarIncidencias();
+        if (window.PortalUI?.alert) {
+            await window.PortalUI.alert({
+                title: 'Incidencia Cancelada',
+                message: 'La incidencia ha sido cancelada exitosamente.',
+                type: 'success'
+            });
+        }
+    } catch (error) {
+        if (window.PortalUI?.alert) {
+            await window.PortalUI.alert({
+                title: 'Error',
+                message: 'No se pudo cancelar la incidencia: ' + error.message,
+                type: 'error'
+            });
+        } else {
+            alert('Error: ' + error.message);
+        }
     }
 }
 
@@ -178,12 +269,11 @@ function setupModal() {
             const empleadoNombre = select.options[select.selectedIndex]?.textContent || `empleado ${empleadoVal}`;
 
             try {
-                // Actualiza estado a 'En Proceso' (id_estado = 2) y asigna al empleado seleccionado
                 const res = await fetch(`${API_BASE}/incidencias/${incidenciaSeleccionadaId}/estado`, {
                     method: 'PATCH',
                     headers: window.PortalAuth ? window.PortalAuth.authHeaders({ 'Content-Type': 'application/json' }) : { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        id_estado: 2,
+                        id_estado: 2, // En Proceso
                         asignado_a: Number(empleadoVal),
                         descripcion_resolucion: `Asignado a ${empleadoNombre}`
                     })
@@ -217,4 +307,3 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarEmpleadosSistemas();
     cargarIncidencias();
 });
-

@@ -2,63 +2,64 @@
 <html lang="es">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Empleado Área Sistemas - Incidencias</title>
-	<link rel="stylesheet" href="../css/style.css">
-	<script src="../../utils/auth.js" data-roles="2"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empleado Área Sistemas - Incidencias</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../../utils/auth.js" data-roles="2"></script>
 </head>
 
 <body>
-	<div class="employee-container">
-		<!-- Header -->
-		<header class="employee-header">
-			<div class="header-left">
-				<h1 class="header-title">Empleado Área Sistemas</h1>
-				<a href="../../../index.html" class="logout-btn">Salir</a>
-			</div>
-			<div class="header-right">
-				<img src="../../imagenes/logo.jpg" alt="Logo">
-			</div>
-		</header>
+    <div class="employee-container">
+        <!-- Header -->
+        <header class="employee-header">
+            <div class="header-left">
+                <h1 class="header-title">Empleado Área Sistemas</h1>
+                <a href="../../../index.html" class="logout-btn">Salir</a>
+            </div>
+            <div class="header-right">
+                <img src="../../imagenes/logo.jpg" alt="Logo">
+            </div>
+        </header>
 
-		<!-- Main Content with Sidebar -->
-		<div class="main-content">
-			<!-- Sidebar Menu -->
-			<aside class="sidebar-menu">
-				<a href="sistemas-incidencias.html" class="menu-item active">Incidencias</a>
-				<a href="sistemas-articulos.html" class="menu-item">Artículos</a>
-				<a href="sistemas-categorias.html" class="menu-item">Categorías</a>
-			</aside>
+        <!-- Main Content with Sidebar -->
+        <div class="main-content">
+            <!-- Sidebar Menu -->
+            <aside class="sidebar-menu">
+                <a href="sistemas-incidencias.html" class="menu-item active">Incidencias</a>
+                <a href="sistemas-articulos.html" class="menu-item">Artículos</a>
+                <a href="sistemas-categorias.html" class="menu-item">Categorías</a>
+            </aside>
 
-			<!-- Content Area -->
-			<div class="content-area">
-				<!-- Incidencias Section -->
-				<section id="incidents" class="content-section incidents-section active">
-					<h2>Incidencias Asignadas</h2>
-					<div class="table-wrapper">
-						<table>
-							<thead>
-								<tr>
-									<th>Código</th>
-									<th>Artículo</th>
-									<th>Prioridad</th>
-									<th>Estado</th>
-									<th>Acciones</th>
-								</tr>
-							</thead>
-							<tbody id="incidents-table-body">
-								<!-- Filas dinámicas -->
-							</tbody>
-						</table>
-					</div>
-				</section>
-			</div>
-		</div>
-	</div>
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Incidencias Section -->
+                <section id="incidents" class="content-section incidents-section active">
+                    <h2>Incidencias Asignadas</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Artículo</th>
+                                    <th>Descripción</th>
+                                    <th>Prioridad</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="incidents-table-body">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
 
-	<script src="../../utils/ui.js"></script>
-	<script src="./sistemas-incidencias.js"></script>
+    <script src="../../utils/ui.js"></script>
+    <script src="./sistemas-incidencias.js"></script>
 </body>
 
 </html>

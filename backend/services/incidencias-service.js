@@ -1,48 +1,95 @@
-import IncidenciasDatos from '../repositories/incidencias-repository.js';
+import {pool} from '../src/config/bd.js';
 
-export default class IncidenciasServicio {
-    constructor() {
-        this.incidencias = new IncidenciasDatos();
-    }
+export default class IncidenciasDatos {
 
-    buscarTodos = (filtros) => {
-        return this.incidencias.buscarTodos(filtros);
-    };
+    buscarTodos = async (filtros = {}) => {
+        let query = `
+            SELECT 
+                i.*, 
+                art.descripcion AS articulo_descripcion,
+                CONCAT_WS(' ', u_creador.nombres, u_creador.apellidos) AS creado_por_nombre,
+                u_creador.usuario AS email_usuario,
+                CONCAT_WS(' ', u_asignado.nombres, u_asignado.apellidos) AS asignado_a_nombre,
+                e.descripcion AS estado
+            FROM incidencias i
+            LEFT JOIN articulos art ON i.id_articulo = art.id_articulo
+            LEFT JOIN usuarios u_creador ON i.creado_por = u_creador.id_usuario
+            LEFT JOIN usuarios u_asignado ON i.asignado_a = u_asignado.id_usuario
+            LEFT JOIN estados e ON i.id_estado = e.id_estado
+        `;
 
-    buscarPorId = (id) => {
-        return this.incidencias.buscarPorId(id);
-    };
-
-    crear = (datos) => {
-        return this.incidencias.crear(datos);
-    };
-
-    editar = (id, datos) => {
-        return this.incidencias.editar(id, datos);
-    };
-
-    cambiarEstado = async (id, { id_estado, descripcion_resolucion, asignado_a }) => {
-        const incidenciaActual = await this.incidencias.buscarEstadoActual(id);
-        if (!incidenciaActual) {
-            return { status: 404, error: 'Incidencia no encontrada' };
+        const valores = [];
+        if (filtros.asignado_a) {
+            query += ` WHERE i.asignado_a = $1`;
+            valores.push(filtros.asignado_a);
         }
 
-        // Solo se permite cancelar (id_estado = 4) cuando está Pendiente (id_estado = 1)
-        if (Number(id_estado) === 4 && Number(incidenciaActual.id_estado) !== 1) {
-            return {
-                status: 400,
-                error: 'Solo se puede cancelar una incidencia cuando su estado es Pendiente'
-            };
-        }
+        query += ` ORDER BY i.id_incidencia DESC`;
 
-        const incidencia = await this.incidencias.cambiarEstado(id, {
-            id_estado,
-            descripcion_resolucion,
-            asignado_a
-        });
-        if (!incidencia) {
-            return { status: 404, error: 'Incidencia no encontrada' };
-        }
-        return { status: 200, data: incidencia };
+        const result = await pool.query(query, valores);
+        return result.rows;
+    };
+
+    buscarPorId = async (id) => {
+        const query = `
+            SELECT 
+                i.*, 
+                art.descripcion AS articulo_descripcion,
+                CONCAT_WS(' ', u_creador.nombres, u_creador.apellidos) AS creado_por_nombre,
+                u_creador.usuario AS email_usuario, 
+                CONCAT_WS(' ', u_asignado.nombres, u_asignado.apellidos) AS asignado_a_nombre,
+                e.descripcion AS estado
+            FROM incidencias i
+            LEFT JOIN articulos art ON i.id_articulo = art.id_articulo
+            LEFT JOIN usuarios u_creador ON i.creado_por = u_creador.id_usuario
+            LEFT JOIN usuarios u_asignado ON i.asignado_a = u_asignado.id_usuario
+            LEFT JOIN estados e ON i.id_estado = e.id_estado
+            WHERE i.id_incidencia = $1
+        `;
+        const result = await pool.query(query, [id]);
+        return result.rows[0];
+    };
+
+    buscarEstadoActual = async (id) => {
+        const query = `SELECT id_estado FROM incidencias WHERE id_incidencia = $1`;
+        const result = await pool.query(query, [id]);
+        return result.rows[0];
+    };
+
+    crear = async (datos) => {
+        const { id_articulo, descripcion_pedido, prioridad, creado_por, asignado_a } = datos;
+        const query = `
+            INSERT INTO incidencias (id_articulo, descripcion_pedido, prioridad, creado_por, asignado_a, id_estado, creado)
+            VALUES ($1, $2, $3, $4, $5, 1, NOW())
+            RETURNING *;
+        `;
+        const result = await pool.query(query, [id_articulo, descripcion_pedido, prioridad, creado_por, asignado_a]);
+        return result.rows[0];
+    };
+
+    editar = async (id, datos) => {
+        const { descripcion_pedido, prioridad } = datos;
+        const query = `
+            UPDATE incidencias 
+            SET descripcion_pedido = $1, prioridad = $2
+            WHERE id_incidencia = $3
+            RETURNING *;
+        `;
+        const result = await pool.query(query, [descripcion_pedido, prioridad, id]);
+        return result.rows[0];
+    };
+
+    cambiarEstado = async (id, datos) => {
+        const { id_estado, descripcion_resolucion, asignado_a } = datos;
+        const query = `
+            UPDATE incidencias 
+            SET id_estado = $1, 
+                descripcion_resolucion = COALESCE($2, descripcion_resolucion),
+                asignado_a = COALESCE($3, asignado_a)
+            WHERE id_incidencia = $4
+            RETURNING *;
+        `;
+        const result = await pool.query(query, [id_estado, descripcion_resolucion, asignado_a, id]);
+        return result.rows[0];
     };
 }
